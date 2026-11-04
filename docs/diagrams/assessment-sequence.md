@@ -38,9 +38,9 @@ sequenceDiagram
       Policy->>Mock: Leer policy.json
       Mock-->>UC: Reglas versionadas
       UC->>Rules: Evaluar hechos conocidos y reglas
-      Rules-->>UC: PolicyEvaluation inmutable: R5 con aprobación; R1 no cumple
+      Rules-->>UC: PolicyEvaluation inmutable, R5 con aprobación y R1 no cumple
     else Sin retraso verificado
-      Note over UC: No evaluar política DELAY; conservar incertidumbres
+      Note over UC: No evaluar política DELAY y conservar incertidumbres
     end
     Note over UC,Mock: Cualquier SourceUnavailableException produce revisión
     UC-->>In: Assessment con evidencias y motivos

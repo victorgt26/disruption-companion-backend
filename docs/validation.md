@@ -34,3 +34,7 @@ Lombok 1.18.48 (`compileOnly` y `annotationProcessor`), sin dependencia en runti
 Códigos propios representados por enums sin alterar sus valores JSON; valores externos desconocidos siguen llegando como strings para su validación segura. El evaluador devuelve `PolicyEvaluation` sin mutar argumentos. Los conflictos de eventos comparan campos explícitos y ya no concatenan cadenas. Se mantienen los motivos acumulados cuando falla la verificación de eventos. La suite HTTP comprueba el ejemplo ABC123, las respuestas documentadas y los valores del enum NextStep en OpenAPI, además del HTML y configuración de Swagger.
 
 Las convenciones y la obligación de actualizar documentación en cambios futuros quedaron registradas en AGENTS.md. Se conservaron los cambios previos del usuario en README (sin enlace al PDF) y la firma de main de Java 25.
+
+## Corrección de sintaxis del diagrama de secuencia
+
+Se reprodujo el fallo de la versión anterior de `docs/diagrams/assessment-sequence.md` con `mermaid.parse` (Mermaid 11.12.0). Dos textos contenían punto y coma, que el parser interpretaba como separadores de instrucciones; se reformularon sin ese carácter. El mismo parser acepta la versión corregida. Validación realizada con dependencias temporales en `/private/tmp`, sin añadir dependencias al proyecto. Se comprobó sintaxis, no renderizado visual en GitHub; no se repitieron pruebas Java porque solo cambió documentación.
