@@ -4,33 +4,41 @@
 sequenceDiagram
   actor Client as Cliente HTTP
   participant Controller as AssessmentController
-  participant In as Puerto AssessDisruption
-  participant UC as AssessDisruptionUseCase
+  participant In as Puerto AssessDisruptionUseCase
+  participant UC as AssessDisruptionUseCaseImpl
   participant Trip as Puerto TripContextPort
   participant Events as Puerto OperationalEventsPort
   participant Policy as Puerto PolicyRulesPort
   participant Mock as JsonMockAdapter
+  participant EventAssessment as OperationalEventAssessor
+  participant Freshness as SourceFreshness
   participant Rules as PolicyEvaluator
   Client->>Controller: POST bookingId, compensationRequested
   Note over Controller: MVC y Jakarta validan JSON y formato
   alt Solicitud inválida
     Controller-->>Client: 400 ProblemDetail sin payload
   else Solicitud válida
-    Controller->>In: assess(bookingId, flag)
+    Controller->>In: execute(bookingId, flag)
     In->>UC: Despacho a implementación
     UC->>Trip: getTripContext(bookingId)
     Trip->>Mock: Leer trip.json
     Mock-->>UC: Reserva parcial con menor
+    UC->>Freshness: isFresh(trip.retrievedAt, now)
+    Freshness-->>UC: Vigencia de la reserva
     UC->>Events: getOperationalEvents(segmentIds)
     Events->>Mock: Leer y filtrar events.json
     Mock-->>UC: Eventos y metadatos
-    Note over UC: Clock, frescura, fuente, último estado y conflictos
+    UC->>EventAssessment: assess(segmentIds, feed, now)
+    EventAssessment->>Freshness: isFresh(timestamp, now)
+    Freshness-->>EventAssessment: Vigencia
+    Note over EventAssessment: Fuente, último estado y conflictos
+    EventAssessment-->>UC: OperationalAssessment inmutable
     alt Retraso verificado
       UC->>Policy: getPolicyRules(DELAY)
       Policy->>Mock: Leer policy.json
       Mock-->>UC: Reglas versionadas
       UC->>Rules: Evaluar hechos conocidos y reglas
-      Rules-->>UC: R5 sujeta a aprobación; R1 no cumple con 160 min
+      Rules-->>UC: PolicyEvaluation inmutable: R5 con aprobación; R1 no cumple
     else Sin retraso verificado
       Note over UC: No evaluar política DELAY; conservar incertidumbres
     end

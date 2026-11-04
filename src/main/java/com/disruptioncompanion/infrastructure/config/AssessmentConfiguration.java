@@ -1,12 +1,18 @@
 package com.disruptioncompanion.infrastructure.config;
 
-import com.disruptioncompanion.application.port.in.AssessDisruption;
+import com.disruptioncompanion.application.port.in.AssessDisruptionUseCase;
+import com.disruptioncompanion.application.service.OperationalEventAssessor;
 import com.disruptioncompanion.application.service.PolicyEvaluator;
-import com.disruptioncompanion.application.usecase.AssessDisruptionUseCase;
+import com.disruptioncompanion.application.service.SourceFreshness;
+import com.disruptioncompanion.application.usecase.AssessDisruptionUseCaseImpl;
 import com.disruptioncompanion.infrastructure.adapter.out.mock.JsonMockAdapter;
-import java.time.*;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.PropertyNamingStrategies;
@@ -37,13 +43,20 @@ public class AssessmentConfiguration {
   }
 
   @Bean
-  AssessDisruption assessDisruption(
+  AssessDisruptionUseCase assessDisruption(
       JsonMockAdapter adapter,
       Clock clock,
       @Value("${assessment.max-source-age:PT30M}") Duration maxAge) {
     if (maxAge.isNegative() || maxAge.isZero())
       throw new IllegalArgumentException("Source age must be positive");
-    return new AssessDisruptionUseCase(
-        adapter, adapter, adapter, clock, maxAge, new PolicyEvaluator());
+    SourceFreshness freshness = new SourceFreshness(maxAge);
+    return new AssessDisruptionUseCaseImpl(
+        adapter,
+        adapter,
+        adapter,
+        clock,
+        freshness,
+        new OperationalEventAssessor(freshness),
+        new PolicyEvaluator());
   }
 }

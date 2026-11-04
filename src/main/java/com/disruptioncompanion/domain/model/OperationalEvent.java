@@ -1,6 +1,7 @@
 package com.disruptioncompanion.domain.model;
 
-import java.time.*;
+import java.time.Instant;
+import java.time.LocalTime;
 
 public record OperationalEvent(
     String eventId,

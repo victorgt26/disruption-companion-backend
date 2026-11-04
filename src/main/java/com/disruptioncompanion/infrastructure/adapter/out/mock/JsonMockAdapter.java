@@ -1,19 +1,22 @@
 package com.disruptioncompanion.infrastructure.adapter.out.mock;
 
-import com.disruptioncompanion.application.port.out.*;
-import com.disruptioncompanion.domain.model.*;
+import com.disruptioncompanion.application.port.out.OperationalEventsPort;
+import com.disruptioncompanion.application.port.out.PolicyRulesPort;
+import com.disruptioncompanion.application.port.out.SourceUnavailableException;
+import com.disruptioncompanion.application.port.out.TripContextPort;
+import com.disruptioncompanion.domain.model.OperationalEvents;
+import com.disruptioncompanion.domain.model.PolicyRules;
+import com.disruptioncompanion.domain.model.TripContext;
 import java.io.IOException;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ClassPathResource;
 import tools.jackson.databind.ObjectMapper;
 
+@RequiredArgsConstructor
 public final class JsonMockAdapter
     implements TripContextPort, OperationalEventsPort, PolicyRulesPort {
   private final ObjectMapper mapper;
-
-  public JsonMockAdapter(ObjectMapper mapper) {
-    this.mapper = mapper;
-  }
 
   private <T> T read(String file, Class<T> type) {
     try (var input = new ClassPathResource("mocks/" + file + ".json").getInputStream()) {

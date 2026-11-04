@@ -8,7 +8,7 @@ public final class AssessmentMapper {
 
   public static AssessmentResponse toResponse(Assessment result) {
     return new AssessmentResponse(
-        result.status().name(),
+        result.status(),
         result.assessedAt(),
         result.messageCode(),
         result.disruptions(),

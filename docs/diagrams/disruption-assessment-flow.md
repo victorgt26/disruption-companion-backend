@@ -4,14 +4,14 @@
 flowchart TD
   Request[POST /api/assessments] --> Valid{JSON y bookingId válidos?}
   Valid -- No --> Bad[400 ProblemDetail genérico]
-  Valid -- Sí --> Trip[Leer reserva mediante puerto]
+  Valid -- Sí --> Trip[AssessDisruptionUseCaseImpl.execute: leer reserva mediante puerto]
   Trip --> HasTrip{Reserva y segmentos disponibles?}
   HasTrip -- No --> Review[Marcar revisión y conservar solo hechos verificados]
   HasTrip -- Sí --> Quality[Marcar parcialidad, antigüedad o pasajeros desconocidos]
   Quality --> Feed[Leer eventos por segmentos]
   Feed --> Fresh{Respuesta y metadatos vigentes?}
   Fresh -- No --> Review
-  Fresh -- Sí --> Filter[Descartar eventos antiguos, futuros y fuentes degradadas]
+  Fresh -- Sí --> Filter[OperationalEventAssessor y SourceFreshness: descartar eventos antiguos, futuros y fuentes degradadas]
   Filter --> Select[Por tramo: último DELAY o STATUS de OPS_CORE]
   Select --> Conflict{Falta fuente autoritativa o hay empate contradictorio?}
   Conflict -- Sí --> Flag[Marcar revisión del tramo y continuar con los demás]
@@ -25,7 +25,7 @@ flowchart TD
   Connection --> Policy[Leer reglas DELAY]
   Policy --> Verified{Política verificable y vigente?}
   Verified -- No --> Review
-  Verified -- Sí --> Rules[Evaluar condiciones conocidas, nunca expresiones ejecutables]
+  Verified -- Sí --> Rules[PolicyEvaluator: devolver coincidencias y motivos sin mutar argumentos]
   Rules --> Unknown[No inferir conexión perdida ni internacionalidad; señalar reglas desconocidas]
   Unknown --> Approval[Menor o compensación: aprobación humana; umbral de cambio ≥180 min]
   Approval --> Build

@@ -13,6 +13,8 @@ La salida no contiene zona horaria para `newDeparture`; se presenta como horario
 
 ## API implementada
 
+Probar en [Swagger UI](http://127.0.0.1:8080/swagger-ui.html), con el ejemplo `ABC123`, después de `./gradlew bootRun`. Contrato generado: `/v3/api-docs`. La consola pertenece a la infraestructura de documentación de la API, sin implementar el frontend de pasajero.
+
 `POST /api/assessments`, JSON:
 
 ```json
@@ -31,6 +33,8 @@ La salida no contiene zona horaria para `newDeparture`; se presenta como horario
 | `entitlements` | code, policyRef, ruleId, requiresHumanApproval; coincidencias de política, nunca una ejecución confirmada |
 | `reviewReasons` | Códigos de incertidumbre o necesidad de aprobación; guiar la revisión |
 | `nextStep` | `CONTACT_HUMAN_SUPPORT` o `READ_VERIFIED_INFORMATION`; una instrucción, sin side effects |
+
+Los códigos de estado, mensaje, siguiente paso, revisión, evidencia y beneficios son enums en Java y valores enumerados en OpenAPI. Su representación JSON sigue siendo una cadena con los valores descritos; identificadores y valores de contratos externos conservan strings para tolerar desconocidos.
 
 No mostrar beneficios de `entitlements` como ofertas confirmadas si `REVIEW_REQUIRED`, ni compensación sin aprobación. Motivos principales: TRIP_PARTIAL, TRIP_STALE_OR_UNVERIFIED, TRIP_INCOMPLETE, TRIP_NOT_AVAILABLE, PASSENGERS_UNKNOWN, EVENTS_UNAVAILABLE_OR_STALE, NO_AUTHORITATIVE_EVENT, CONFLICTING_AUTHORITATIVE_EVENTS, EVENT_INCOMPLETE, UNSUPPORTED_OPERATIONAL_STATUS, CONNECTION_OUTCOME_UNKNOWN, POLICY_UNVERIFIED, UNKNOWN_POLICY_RULE, INTERNATIONAL_STATUS_UNKNOWN, HUMAN_APPROVAL_REQUIRED, COMPENSATION_SCENARIO_UNVERIFIED y SOURCE_UNAVAILABLE. El cliente debe tener un mensaje seguro para códigos futuros.
 

@@ -1,6 +1,6 @@
 package com.disruptioncompanion.domain.model;
 
-import java.time.*;
+import java.time.Instant;
 import java.util.List;
 
 public record Metadata(

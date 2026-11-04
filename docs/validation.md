@@ -4,17 +4,18 @@ Validación realizada por el asistente el 4 de noviembre de 2026. No equivale a 
 
 | Comprobación ejecutada | Resultado observado |
 |---|---|
-| `./gradlew clean test` final | BUILD SUCCESSFUL; 27 pruebas, 0 fallos, 0 errores, 0 omitidas |
+| `./gradlew clean test` final | BUILD SUCCESSFUL; 29 pruebas, 0 fallos, 0 errores, 0 omitidas |
 | Suite de application, JUnit y puertos Mockito | 22 ejecuciones, incluidos los cuatro parámetros de umbral |
-| Suite HTTP, contexto Spring/MockMvc y JSON reales | 5 pruebas; caso base, formato inválido, JSON malformado, reserva desconocida y compensación con aprobación |
+| Suite HTTP, contexto Spring/MockMvc y JSON reales | 7 pruebas; cinco de evaluación HTTP y dos de OpenAPI/Swagger UI |
 | `./gradlew bootRun` | Arranque correcto: Java 25.0.3, Boot 4.1.2, Tomcat, 127.0.0.1:8080, perfil demo |
 | POST HTTP real con curl y ABC123 | REVIEW_REQUIRED; S1 160 min / 17:10; R5 con aprobación; ningún REBOOK_NO_FEE; tres motivos de revisión esperados |
 | `./gradlew dependencyInsight --dependency spring-core --configuration runtimeClasspath` | Spring Framework 7.0.10 resuelto por Boot 4.1.2 |
+| HTTP real de `/swagger-ui/index.html` y `/v3/api-docs` | HTML Swagger UI y contrato OpenAPI recibidos correctamente después del refactor |
 | Inspección de imports con rg y lectura del código | Domain sin dependencias de application/infrastructure/frameworks; Application sin Spring/Jackson/Jakarta ni infrastructure |
 | Inspección de contratos, respuesta real y pruebas de privacidad | Sin nombres, contactos, documentos ni localizador en respuesta; errores genéricos; no-store verificado en MockMvc |
 | Revisión de documentación y diagramas frente al código | Tres lecturas, evaluación determinística y cero escrituras; límites descritos |
 
-Los XML JUnit están en `build/test-results/test/`; reporte navegable en `build/reports/tests/test/index.html`. Son artefactos locales ignorados por Git. La compilación preliminar sin tests no se contó como evidencia. Hubo fallos HTTP iniciales que permitieron corregir el booleano opcional y el mapeo de `_meta`; la suite final quedó verde. El arranque real se verificó antes de los últimos controles de datos incompletos; estos quedaron cubiertos por la suite final completa, incluido el endpoint con el código actualizado. El servidor de verificación se detuvo con Ctrl-C tras la consulta.
+Los XML JUnit están en `build/test-results/test/`; reporte navegable en `build/reports/tests/test/index.html`. Son artefactos locales ignorados por Git. La compilación preliminar sin tests no se contó como evidencia. Hubo fallos HTTP iniciales que permitieron corregir el booleano opcional y el mapeo de `_meta`; la suite final quedó verde. Tras el refactor se repitieron `clean test`, `bootRun` y las consultas HTTP reales de Swagger UI, OpenAPI y ABC123 con el código actualizado. El servidor de verificación se detuvo con Ctrl-C tras la consulta.
 
 ## Alcance de la revisión
 
@@ -23,4 +24,13 @@ Los XML JUnit están en `build/test-results/test/`; reporte navegable en `build/
 - Menor y compensación con aprobación; compensación sin escenario DELAY verificado bloqueada; reserva parcial y desconocida sin promesas.
 - Revisión de código: controllers solo adaptan entrada/salida; adaptador JSON carga y filtra según contratos; evaluación y decisiones en application; records/enums puros en domain.
 
-No se ejecutaron pruebas de carga, integraciones reales, auditoría de seguridad, reconciliación de escrituras ni revisión humana. No se afirma cobertura exhaustiva ni porcentajes de cobertura. No hay `mmdc` instalado: se entregan fuentes Mermaid sin SVG; su visualización final en GitHub queda pendiente de revisión. README (685 palabras) y AI_USAGE (357) se mantienen compactos para los límites de dos y una páginas equivalentes en Markdown; no se generó un PDF paginado de esos documentos.
+No se ejecutaron pruebas de carga, integraciones reales, auditoría de seguridad, reconciliación de escrituras ni revisión humana. No se afirma cobertura exhaustiva ni porcentajes de cobertura. No hay `mmdc` instalado: se entregan fuentes Mermaid sin SVG; su visualización final en GitHub queda pendiente de revisión. README y AI_USAGE se mantienen compactos para los límites de dos y una páginas equivalentes en Markdown; no se generó un PDF paginado de esos documentos.
+
+
+## Revisión de convenciones solicitada
+
+Lombok 1.18.48 (`compileOnly` y `annotationProcessor`), sin dependencia en runtime; springdoc 3.2.0 según su matriz oficial para Boot 4.1. El caso de uso es un puerto `AssessDisruptionUseCase` con un único `execute`; `AssessDisruptionUseCaseImpl` coordina servicios de frescura, eventos y políticas. Se sustituyeron imports con asteriscos por explícitos y se eliminaron los no usados con google-java-format. Al expandir los imports de tests faltaron temporalmente `anyList` y `Entitlement`; se corrigieron antes de la ejecución final exitosa.
+
+Códigos propios representados por enums sin alterar sus valores JSON; valores externos desconocidos siguen llegando como strings para su validación segura. El evaluador devuelve `PolicyEvaluation` sin mutar argumentos. Los conflictos de eventos comparan campos explícitos y ya no concatenan cadenas. Se mantienen los motivos acumulados cuando falla la verificación de eventos. La suite HTTP comprueba el ejemplo ABC123, las respuestas documentadas y los valores del enum NextStep en OpenAPI, además del HTML y configuración de Swagger.
+
+Las convenciones y la obligación de actualizar documentación en cambios futuros quedaron registradas en AGENTS.md. Se conservaron los cambios previos del usuario en README (sin enlace al PDF) y la firma de main de Java 25.

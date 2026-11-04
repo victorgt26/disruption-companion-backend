@@ -1,6 +1,6 @@
 package com.disruptioncompanion.domain.model;
 
-import java.time.*;
+import com.disruptioncompanion.domain.enums.EntitlementCode;
 
 public record Entitlement(
-    String code, String policyRef, String ruleId, boolean requiresHumanApproval) {}
+    EntitlementCode code, String policyRef, String ruleId, boolean requiresHumanApproval) {}
