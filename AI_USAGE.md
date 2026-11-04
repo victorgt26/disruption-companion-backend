@@ -1,0 +1,13 @@
+# AI Usage & Decision Note
+
+**Herramientas realmente utilizadas:** Codex como asistente de análisis, programación, pruebas y documentación; habilidad PDF y `pypdf` del runtime para extraer las siete páginas; búsqueda web para compatibilidad en documentación oficial de Spring y Gradle. Shell/Python para generar archivos, Gradle/JUnit/Mockito/MockMvc para validación y google-java-format temporal para formato. Sin subagentes ni modelos en runtime.
+
+**Contribuciones aceptadas provisionalmente:** arquitectura hexagonal, evaluación determinística, mocks minimizados, API, tests, diagramas Mermaid y documentación. Son propuestas del asistente pendientes de revisión personal del candidato. No se atribuye revisión humana que no haya ocurrido.
+
+**Correcciones basadas en evidencia:** las pruebas HTTP detectaron que Jackson 3 rechazaba el booleano primitivo omitido y que SnakeCase eliminaba el prefijo de `_meta`. Se cambió a Boolean opcional y a conversión que preserva `_meta`; se repitieron pruebas con fixtures reales. Se descartó inferir conexión perdida, elegibilidad por O1 o compensación automática. El alcance no incluye IA agentic ni escrituras.
+
+**Validaciones:** compilación Java 25 y suite `./gradlew clean test`; prueba HTTP con contexto Spring y adaptador JSON reales; arranque con `./gradlew bootRun` y consulta local. Los resultados finales y alcance de revisión se registran en `docs/validation.md`. Ninguna ejecución preliminar sin tests se considera evidencia de comportamiento. Diagramas mantenidos en Mermaid fuente; no son imágenes generadas por IA.
+
+**Decisiones personales del candidato:** [COMPLETAR MANUALMENTE: qué propuestas aceptaste, cambiaste o rechazaste, por qué, y qué revisaste personalmente]. Stack, idioma, separación de capas y track Backend fueron establecidos por el usuario. Frescura, jerarquía de fuentes, lectura sin escrituras y ausencia de IA en runtime son propuestas del asistente que requieren ratificación humana. [COMPLETAR: tiempo efectivo total de preparación, máximo 3 h según challenge, incluyendo trabajo fuera de este chat].
+
+**Información que no se entregaría a un modelo en producto:** nombres, documentos, contactos, localizadores, credenciales, secretos, conversaciones identificables o payloads de reservas. En esta sesión de desarrollo se leyó el PDF proporcionado, que contiene datos de ejemplo; no afirmar que fue anonimizado antes de leerlo. Los nuevos fixtures omiten nombres y contactos y conservan únicamente campos necesarios. Un eventual modelo solo recibiría hechos mínimos desidentificados y validados, sin herramientas de escritura, con salida contrastada contra reglas y fallback humano.
