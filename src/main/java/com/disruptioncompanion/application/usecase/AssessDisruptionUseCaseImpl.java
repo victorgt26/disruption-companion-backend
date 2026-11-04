@@ -10,6 +10,7 @@ import com.disruptioncompanion.application.service.PolicyEvaluator;
 import com.disruptioncompanion.application.service.SourceFreshness;
 import com.disruptioncompanion.domain.enums.AssessmentMessage;
 import com.disruptioncompanion.domain.enums.AssessmentStatus;
+import com.disruptioncompanion.domain.enums.DisruptionScenario;
 import com.disruptioncompanion.domain.enums.NextStep;
 import com.disruptioncompanion.domain.enums.ReviewReason;
 import com.disruptioncompanion.domain.model.Assessment;
@@ -69,7 +70,7 @@ public final class AssessDisruptionUseCaseImpl implements AssessDisruptionUseCas
                 .orElseThrow();
         PolicyEvaluation policy =
             evaluator.evaluate(
-                policies.getPolicyRules("DELAY"),
+                policies.getPolicyRules(DisruptionScenario.DELAY),
                 maximumDelay,
                 includesMinor(trip),
                 compensationRequested,

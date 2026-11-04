@@ -1,0 +1,379 @@
+[
+  {
+    "name": "BASE_CASE",
+    "description": "Historical base case with partial data and a minor",
+    "request": {
+      "scenario": "BASE_CASE",
+      "request": {
+        "bookingId": "ABC123",
+        "compensationRequested": false
+      }
+    },
+    "httpStatus": 200,
+    "responseResource": "api-examples/responses/base_case.json"
+  },
+  {
+    "name": "NO_DISRUPTION",
+    "description": "Complete trip without a verified change",
+    "request": {
+      "scenario": "NO_DISRUPTION",
+      "request": {
+        "bookingId": "ABC123",
+        "compensationRequested": false
+      }
+    },
+    "httpStatus": 200,
+    "responseResource": "api-examples/responses/no_disruption.json"
+  },
+  {
+    "name": "DELAY_BELOW_THRESHOLD",
+    "description": "179 minutes do not meet the free rebooking threshold",
+    "request": {
+      "scenario": "DELAY_BELOW_THRESHOLD",
+      "request": {
+        "bookingId": "ABC123",
+        "compensationRequested": false
+      }
+    },
+    "httpStatus": 200,
+    "responseResource": "api-examples/responses/delay_below_threshold.json"
+  },
+  {
+    "name": "DELAY_AT_THRESHOLD",
+    "description": "180 minutes meet rule R1",
+    "request": {
+      "scenario": "DELAY_AT_THRESHOLD",
+      "request": {
+        "bookingId": "ABC123",
+        "compensationRequested": false
+      }
+    },
+    "httpStatus": 200,
+    "responseResource": "api-examples/responses/delay_at_threshold.json"
+  },
+  {
+    "name": "INTERNATIONAL_UNVERIFIED",
+    "description": "240 minutes with unknown international status",
+    "request": {
+      "scenario": "INTERNATIONAL_UNVERIFIED",
+      "request": {
+        "bookingId": "ABC123",
+        "compensationRequested": false
+      }
+    },
+    "httpStatus": 200,
+    "responseResource": "api-examples/responses/international_unverified.json"
+  },
+  {
+    "name": "MINOR_REQUIRES_APPROVAL",
+    "description": "Priority handling needs human approval",
+    "request": {
+      "scenario": "MINOR_REQUIRES_APPROVAL",
+      "request": {
+        "bookingId": "ABC123",
+        "compensationRequested": false
+      }
+    },
+    "httpStatus": 200,
+    "responseResource": "api-examples/responses/minor_requires_approval.json"
+  },
+  {
+    "name": "PARTIAL_TRIP",
+    "description": "Incomplete fare information",
+    "request": {
+      "scenario": "PARTIAL_TRIP",
+      "request": {
+        "bookingId": "ABC123",
+        "compensationRequested": false
+      }
+    },
+    "httpStatus": 200,
+    "responseResource": "api-examples/responses/partial_trip.json"
+  },
+  {
+    "name": "STALE_TRIP",
+    "description": "Outdated trip information with a verified operational event",
+    "request": {
+      "scenario": "STALE_TRIP",
+      "request": {
+        "bookingId": "ABC123",
+        "compensationRequested": false
+      }
+    },
+    "httpStatus": 200,
+    "responseResource": "api-examples/responses/stale_trip.json"
+  },
+  {
+    "name": "MISSING_PASSENGERS",
+    "description": "Passenger context is missing",
+    "request": {
+      "scenario": "MISSING_PASSENGERS",
+      "request": {
+        "bookingId": "ABC123",
+        "compensationRequested": false
+      }
+    },
+    "httpStatus": 200,
+    "responseResource": "api-examples/responses/missing_passengers.json"
+  },
+  {
+    "name": "INCOMPLETE_TRIP",
+    "description": "Trip segments are missing",
+    "request": {
+      "scenario": "INCOMPLETE_TRIP",
+      "request": {
+        "bookingId": "ABC123",
+        "compensationRequested": false
+      }
+    },
+    "httpStatus": 200,
+    "responseResource": "api-examples/responses/incomplete_trip.json"
+  },
+  {
+    "name": "CONNECTION_UNVERIFIED",
+    "description": "Connection outcome cannot be inferred",
+    "request": {
+      "scenario": "CONNECTION_UNVERIFIED",
+      "request": {
+        "bookingId": "ABC123",
+        "compensationRequested": false
+      }
+    },
+    "httpStatus": 200,
+    "responseResource": "api-examples/responses/connection_unverified.json"
+  },
+  {
+    "name": "STALE_FEED",
+    "description": "Operational response metadata are outdated",
+    "request": {
+      "scenario": "STALE_FEED",
+      "request": {
+        "bookingId": "ABC123",
+        "compensationRequested": false
+      }
+    },
+    "httpStatus": 200,
+    "responseResource": "api-examples/responses/stale_feed.json"
+  },
+  {
+    "name": "STALE_EVENT",
+    "description": "Operational event is outdated",
+    "request": {
+      "scenario": "STALE_EVENT",
+      "request": {
+        "bookingId": "ABC123",
+        "compensationRequested": false
+      }
+    },
+    "httpStatus": 200,
+    "responseResource": "api-examples/responses/stale_event.json"
+  },
+  {
+    "name": "FUTURE_EVENT",
+    "description": "Operational event has a future timestamp",
+    "request": {
+      "scenario": "FUTURE_EVENT",
+      "request": {
+        "bookingId": "ABC123",
+        "compensationRequested": false
+      }
+    },
+    "httpStatus": 200,
+    "responseResource": "api-examples/responses/future_event.json"
+  },
+  {
+    "name": "DEGRADED_SOURCE",
+    "description": "Authoritative source is degraded",
+    "request": {
+      "scenario": "DEGRADED_SOURCE",
+      "request": {
+        "bookingId": "ABC123",
+        "compensationRequested": false
+      }
+    },
+    "httpStatus": 200,
+    "responseResource": "api-examples/responses/degraded_source.json"
+  },
+  {
+    "name": "CONFLICTING_EVENTS",
+    "description": "Simultaneous authoritative events disagree",
+    "request": {
+      "scenario": "CONFLICTING_EVENTS",
+      "request": {
+        "bookingId": "ABC123",
+        "compensationRequested": false
+      }
+    },
+    "httpStatus": 200,
+    "responseResource": "api-examples/responses/conflicting_events.json"
+  },
+  {
+    "name": "INCOMPLETE_EVENT",
+    "description": "Delay details are missing",
+    "request": {
+      "scenario": "INCOMPLETE_EVENT",
+      "request": {
+        "bookingId": "ABC123",
+        "compensationRequested": false
+      }
+    },
+    "httpStatus": 200,
+    "responseResource": "api-examples/responses/incomplete_event.json"
+  },
+  {
+    "name": "UNSUPPORTED_STATUS",
+    "description": "Operational status is outside the implemented delay slice",
+    "request": {
+      "scenario": "UNSUPPORTED_STATUS",
+      "request": {
+        "bookingId": "ABC123",
+        "compensationRequested": false
+      }
+    },
+    "httpStatus": 200,
+    "responseResource": "api-examples/responses/unsupported_status.json"
+  },
+  {
+    "name": "UNKNOWN_POLICY_SCENARIO",
+    "description": "External policy scenario is unsupported",
+    "request": {
+      "scenario": "UNKNOWN_POLICY_SCENARIO",
+      "request": {
+        "bookingId": "ABC123",
+        "compensationRequested": false
+      }
+    },
+    "httpStatus": 200,
+    "responseResource": "api-examples/responses/unknown_policy_scenario.json"
+  },
+  {
+    "name": "POLICY_NOT_EFFECTIVE",
+    "description": "Policy is not effective yet",
+    "request": {
+      "scenario": "POLICY_NOT_EFFECTIVE",
+      "request": {
+        "bookingId": "ABC123",
+        "compensationRequested": false
+      }
+    },
+    "httpStatus": 200,
+    "responseResource": "api-examples/responses/policy_not_effective.json"
+  },
+  {
+    "name": "POLICY_SUPERSEDED",
+    "description": "Policy version has been superseded",
+    "request": {
+      "scenario": "POLICY_SUPERSEDED",
+      "request": {
+        "bookingId": "ABC123",
+        "compensationRequested": false
+      }
+    },
+    "httpStatus": 200,
+    "responseResource": "api-examples/responses/policy_superseded.json"
+  },
+  {
+    "name": "UNKNOWN_POLICY_RULE",
+    "description": "Policy contains an unsupported condition",
+    "request": {
+      "scenario": "UNKNOWN_POLICY_RULE",
+      "request": {
+        "bookingId": "ABC123",
+        "compensationRequested": false
+      }
+    },
+    "httpStatus": 200,
+    "responseResource": "api-examples/responses/unknown_policy_rule.json"
+  },
+  {
+    "name": "SOURCE_UNAVAILABLE",
+    "description": "Trip source is unavailable",
+    "request": {
+      "scenario": "SOURCE_UNAVAILABLE",
+      "request": {
+        "bookingId": "ABC123",
+        "compensationRequested": false
+      }
+    },
+    "httpStatus": 200,
+    "responseResource": "api-examples/responses/source_unavailable.json"
+  },
+  {
+    "name": "POLICY_SOURCE_UNAVAILABLE",
+    "description": "Policy source fails after delay verification",
+    "request": {
+      "scenario": "POLICY_SOURCE_UNAVAILABLE",
+      "request": {
+        "bookingId": "ABC123",
+        "compensationRequested": false
+      }
+    },
+    "httpStatus": 200,
+    "responseResource": "api-examples/responses/policy_source_unavailable.json"
+  },
+  {
+    "name": "COMPENSATION_REQUESTED",
+    "description": "Compensation requires human approval",
+    "request": {
+      "scenario": "BASE_CASE",
+      "request": {
+        "bookingId": "ABC123",
+        "compensationRequested": true
+      }
+    },
+    "httpStatus": 200,
+    "responseResource": "api-examples/responses/compensation_requested.json"
+  },
+  {
+    "name": "COMPENSATION_WITHOUT_DELAY",
+    "description": "Delay policy cannot authorize compensation without verified delay",
+    "request": {
+      "scenario": "NO_DISRUPTION",
+      "request": {
+        "bookingId": "ABC123",
+        "compensationRequested": true
+      }
+    },
+    "httpStatus": 200,
+    "responseResource": "api-examples/responses/compensation_without_delay.json"
+  },
+  {
+    "name": "UNKNOWN_BOOKING",
+    "description": "Booking is not available in the fixture",
+    "request": {
+      "scenario": "BASE_CASE",
+      "request": {
+        "bookingId": "XYZ999",
+        "compensationRequested": false
+      }
+    },
+    "httpStatus": 200,
+    "responseResource": "api-examples/responses/unknown_booking.json"
+  },
+  {
+    "name": "INVALID_BOOKING",
+    "description": "Invalid booking identifier",
+    "request": {
+      "scenario": "BASE_CASE",
+      "request": {
+        "bookingId": "INVALID",
+        "compensationRequested": false
+      }
+    },
+    "httpStatus": 400,
+    "responseResource": "api-examples/responses/invalid_booking.json"
+  },
+  {
+    "name": "UNKNOWN_DEMO_SCENARIO",
+    "description": "Unknown demo fixture selector",
+    "request": {
+      "scenario": "NOT_SUPPORTED",
+      "request": {
+        "bookingId": "ABC123",
+        "compensationRequested": false
+      }
+    },
+    "httpStatus": 400,
+    "responseResource": "api-examples/responses/unknown_demo_scenario.json"
+  }
+]

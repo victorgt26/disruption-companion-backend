@@ -13,6 +13,8 @@ La salida no contiene zona horaria para `newDeparture`; se presenta como horario
 
 ## API implementada
 
+Los requests y responses completos y los pasos para disparar escenarios desde Swagger están en el [catálogo ejecutable](api-examples.md). La experiencia del pasajero consume `/api/assessments`; `/api/demo/assessments` es un arnés de prueba disponible solo en demo, con un selector de fixtures y una solicitud anidada.
+
 Probar en [Swagger UI](http://127.0.0.1:8080/swagger-ui.html), con el ejemplo `ABC123`, después de `./gradlew bootRun`. Contrato generado: `/v3/api-docs`. La consola pertenece a la infraestructura de documentación de la API, sin implementar el frontend de pasajero.
 
 `POST /api/assessments`, JSON:
@@ -34,7 +36,7 @@ Probar en [Swagger UI](http://127.0.0.1:8080/swagger-ui.html), con el ejemplo `A
 | `reviewReasons` | Códigos de incertidumbre o necesidad de aprobación; guiar la revisión |
 | `nextStep` | `CONTACT_HUMAN_SUPPORT` o `READ_VERIFIED_INFORMATION`; una instrucción, sin side effects |
 
-Los códigos de estado, mensaje, siguiente paso, revisión, evidencia y beneficios son enums en Java y valores enumerados en OpenAPI. Su representación JSON sigue siendo una cadena con los valores descritos; identificadores y valores de contratos externos conservan strings para tolerar desconocidos.
+Los códigos de estado, mensaje, siguiente paso, revisión, evidencia y beneficios son enums en Java y valores enumerados en OpenAPI. Su representación JSON sigue siendo una cadena con los valores descritos; identificadores y otros valores de contratos externos conservan strings para tolerar desconocidos. Las políticas usan `DisruptionScenario.DELAY`; un escenario externo desconocido se convierte en null y no acredita derechos.
 
 No mostrar beneficios de `entitlements` como ofertas confirmadas si `REVIEW_REQUIRED`, ni compensación sin aprobación. Motivos principales: TRIP_PARTIAL, TRIP_STALE_OR_UNVERIFIED, TRIP_INCOMPLETE, TRIP_NOT_AVAILABLE, PASSENGERS_UNKNOWN, EVENTS_UNAVAILABLE_OR_STALE, NO_AUTHORITATIVE_EVENT, CONFLICTING_AUTHORITATIVE_EVENTS, EVENT_INCOMPLETE, UNSUPPORTED_OPERATIONAL_STATUS, CONNECTION_OUTCOME_UNKNOWN, POLICY_UNVERIFIED, UNKNOWN_POLICY_RULE, INTERNATIONAL_STATUS_UNKNOWN, HUMAN_APPROVAL_REQUIRED, COMPENSATION_SCENARIO_UNVERIFIED y SOURCE_UNAVAILABLE. El cliente debe tener un mensaje seguro para códigos futuros.
 

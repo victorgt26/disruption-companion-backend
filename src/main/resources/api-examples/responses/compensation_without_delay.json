@@ -1,0 +1,20 @@
+{
+  "status": "REVIEW_REQUIRED",
+  "assessedAt": "2026-09-15T11:03:00Z",
+  "messageCode": "NO_CONFIRMED_CHANGE",
+  "disruptions": [],
+  "evidence": [
+    {
+      "eventId": "E-1001",
+      "segmentId": "S1",
+      "source": "OPS_CORE",
+      "recordedAt": "2026-09-15T10:48:00Z",
+      "decision": "AUTHORITATIVE_CANDIDATE"
+    }
+  ],
+  "entitlements": [],
+  "reviewReasons": [
+    "COMPENSATION_SCENARIO_UNVERIFIED"
+  ],
+  "nextStep": "CONTACT_HUMAN_SUPPORT"
+}

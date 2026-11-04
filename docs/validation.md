@@ -4,9 +4,9 @@ Validación realizada por el asistente el 4 de noviembre de 2026. No equivale a 
 
 | Comprobación ejecutada | Resultado observado |
 |---|---|
-| `./gradlew clean test` final | BUILD SUCCESSFUL; 29 pruebas, 0 fallos, 0 errores, 0 omitidas |
+| `./gradlew clean test` final | BUILD SUCCESSFUL; 62 pruebas, 0 fallos, 0 errores, 0 omitidas |
 | Suite de application, JUnit y puertos Mockito | 22 ejecuciones, incluidos los cuatro parámetros de umbral |
-| Suite HTTP, contexto Spring/MockMvc y JSON reales | 7 pruebas; cinco de evaluación HTTP y dos de OpenAPI/Swagger UI |
+| Suite HTTP, contexto Spring/MockMvc y JSON reales | 7 pruebas de API original, 31 de catálogo/demo, 1 de aislamiento de perfil y 1 de fallo inesperado |
 | `./gradlew bootRun` | Arranque correcto: Java 25.0.3, Boot 4.1.2, Tomcat, 127.0.0.1:8080, perfil demo |
 | POST HTTP real con curl y ABC123 | REVIEW_REQUIRED; S1 160 min / 17:10; R5 con aprobación; ningún REBOOK_NO_FEE; tres motivos de revisión esperados |
 | `./gradlew dependencyInsight --dependency spring-core --configuration runtimeClasspath` | Spring Framework 7.0.10 resuelto por Boot 4.1.2 |
@@ -38,3 +38,16 @@ Las convenciones y la obligación de actualizar documentación en cambios futuro
 ## Corrección de sintaxis del diagrama de secuencia
 
 Se reprodujo el fallo de la versión anterior de `docs/diagrams/assessment-sequence.md` con `mermaid.parse` (Mermaid 11.12.0). Dos textos contenían punto y coma, que el parser interpretaba como separadores de instrucciones; se reformularon sin ese carácter. El mismo parser acepta la versión corregida. Validación realizada con dependencias temporales en `/private/tmp`, sin añadir dependencias al proyecto. Se comprobó sintaxis, no renderizado visual en GitHub; no se repitieron pruebas Java porque solo cambió documentación.
+
+
+## Catálogo Swagger, escenario tipado y secuencia simplificada
+
+- `DisruptionScenario.DELAY` tipa el puerto de políticas y su modelo. Jackson 3 usa `EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL` exclusivamente en el mapper de fixtures, de modo que escenarios de política desconocidos no se consideran válidos. Los selectores `DemoScenario` desconocidos enviados por HTTP reciben 400.
+- 29 requests ejecutados contra `POST /api/demo/assessments` por HTTP real. Sus responses completos se guardaron en `src/main/resources/api-examples/responses/` y cada ejemplo se contrasta con la ejecución actual en tests. Se verifica cobertura de los tres estados y de los 17 motivos de revisión actuales.
+- El catálogo OpenAPI final se consultó por HTTP: 29 ejemplos de request, 27 ejemplos de respuesta 200, dos de 400 y uno de 500. La respuesta 500 se contrastó mediante un fallo inesperado inyectado en la prueba HTTP, sin añadir una operación pública que lo fuerce.
+- La prueba de perfil `live` confirma 404 para el endpoint demo y ausencia de sus ejemplos en OpenAPI. Cada selector compone adaptadores propios sin estado compartido entre peticiones. Las decisiones continúan dentro del caso de uso y sus servicios.
+- Se transformó la combinación de reglas a streams con resultados sin efectos laterales. Las 22 pruebas de application siguen pasando. La suite total final es de 62 pruebas, cero fallos, errores u omisiones.
+- El arranque real se comprobó en 8081 porque una instancia previa ocupaba 8080. La primera tentativa en 8080 falló por puerto ocupado y se conservó esa instancia. La instancia temporal de verificación se detuvo con Ctrl-C al finalizar.
+- Los tres diagramas actualizados pasan `mermaid.parse` 11.12.0. La secuencia muestra solo cliente, backend y tres integraciones lógicas. Sin exportación SVG ni verificación visual en GitHub.
+
+La prueba del catálogo detectó una comparación de objetos Integer por identidad que mostraba solo parte de los ejemplos de respuesta. Se corrigió usando códigos HTTP primitivos y se repitió la suite y la consulta real de OpenAPI. `docs/api-examples.md` contiene los bodies, vínculos a respuestas completas, instrucciones Swagger y los límites de las simulaciones.

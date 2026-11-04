@@ -1,0 +1,63 @@
+{
+  "status": "REVIEW_REQUIRED",
+  "assessedAt": "2026-09-15T11:03:00Z",
+  "messageCode": "VERIFIED_DELAY",
+  "disruptions": [
+    {
+      "segmentId": "S1",
+      "eventId": "E-1001",
+      "delayMinutes": 160,
+      "newDeparture": "17:10:00"
+    }
+  ],
+  "evidence": [
+    {
+      "eventId": "E-1001",
+      "segmentId": "S1",
+      "source": "OPS_CORE",
+      "recordedAt": "2026-09-15T10:48:00Z",
+      "decision": "AUTHORITATIVE_CANDIDATE"
+    },
+    {
+      "eventId": "E-1007",
+      "segmentId": "S1",
+      "source": "AIRPORT_FEED",
+      "recordedAt": "2026-09-15T10:55:00Z",
+      "decision": "CONTEXT_ONLY"
+    },
+    {
+      "eventId": "E-1012",
+      "segmentId": "S1",
+      "source": "LEGACY_MIRROR",
+      "recordedAt": "2026-09-15T09:30:00Z",
+      "decision": "IGNORED_STALE_DEGRADED_OR_UNVERIFIED"
+    },
+    {
+      "eventId": "E-2003",
+      "segmentId": "S2",
+      "source": "OPS_CORE",
+      "recordedAt": "2026-09-15T10:48:00Z",
+      "decision": "AUTHORITATIVE_CANDIDATE"
+    }
+  ],
+  "entitlements": [
+    {
+      "code": "CASH_COMPENSATION",
+      "policyRef": "POL-DELAY-2026-03",
+      "ruleId": "R4",
+      "requiresHumanApproval": true
+    },
+    {
+      "code": "PRIORITY_HANDLING",
+      "policyRef": "POL-DELAY-2026-03",
+      "ruleId": "R5",
+      "requiresHumanApproval": true
+    }
+  ],
+  "reviewReasons": [
+    "TRIP_PARTIAL",
+    "CONNECTION_OUTCOME_UNKNOWN",
+    "HUMAN_APPROVAL_REQUIRED"
+  ],
+  "nextStep": "CONTACT_HUMAN_SUPPORT"
+}

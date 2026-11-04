@@ -10,6 +10,8 @@
 
 **Refactor solicitado por el usuario:** Lombok, imports explícitos y limpios, puerto UseCase/execute e implementación Impl, enums propios, métodos con responsabilidades concretas y Swagger UI. Se conservan strings externos y JSON público; se actualizan tests y diagramas. Las verificaciones de esta revisión figuran en `docs/validation.md`.
 
+**Ampliación para pruebas manuales:** diagrama de secuencia centrado en integraciones, enum DELAY y catálogo Swagger de 29 requests con respuestas capturadas por HTTP. Las pruebas comparan esos ejemplos y comprueban los límites del perfil demo. El error 500 se valida por inyección en test.
+
 **Decisiones personales del candidato:** [COMPLETAR MANUALMENTE: qué propuestas aceptaste, cambiaste o rechazaste, por qué, y qué revisaste personalmente]. Stack, idioma, separación de capas y track Backend fueron establecidos por el usuario. Frescura, jerarquía de fuentes, lectura sin escrituras y ausencia de IA en runtime son propuestas del asistente que requieren ratificación humana. [COMPLETAR: tiempo efectivo total de preparación, máximo 3 h según challenge, incluyendo trabajo fuera de este chat].
 
 **Información que no se entregaría a un modelo en producto:** nombres, documentos, contactos, localizadores, credenciales, secretos, conversaciones identificables o payloads de reservas. En esta sesión de desarrollo se leyó el PDF proporcionado, que contiene datos de ejemplo; no afirmar que fue anonimizado antes de leerlo. Los nuevos fixtures omiten nombres y contactos y conservan únicamente campos necesarios. Un eventual modelo solo recibiría hechos mínimos desidentificados y validados, sin herramientas de escritura, con salida contrastada contra reglas y fallback humano.

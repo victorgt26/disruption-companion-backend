@@ -1,0 +1,6 @@
+{
+  "detail": "Invalid request",
+  "instance": "/api/demo/assessments",
+  "status": 400,
+  "title": "Bad Request"
+}

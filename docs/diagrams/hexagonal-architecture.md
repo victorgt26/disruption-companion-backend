@@ -5,6 +5,8 @@ flowchart LR
   Client[Cliente HTTP / Swagger UI]
   subgraph Infrastructure[Infrastructure: adaptadores y configuración]
     Controller[AssessmentController: adaptador REST]
+    Demo[DemoAssessmentController: solo perfil demo]
+    Factory[AssessmentUseCaseFactory: composición por fixtures]
     Mapper[AssessmentMapper y DTO]
     Mock[JsonMockAdapter: adaptador de salida]
     JSON[(JSON locales: trip, events, policy)]
@@ -22,10 +24,16 @@ flowchart LR
   end
   subgraph Domain[Domain: solo datos]
     Data[Records: reserva, eventos, reglas, evaluación y evidencias]
-    Enum[Enums: estado, mensaje, siguiente paso, revisión, evidencia y beneficio]
+    Enum[Enums: escenario, estado, mensaje, siguiente paso, revisión, evidencia y beneficio]
   end
   Client --> Controller
   Controller --> In
+  Client --> Demo
+  Demo --> Factory
+  Demo --> In
+  Demo --> Mapper
+  Factory -. crea .-> UC
+  Factory -. crea .-> Mock
   Controller --> Mapper
   UC -. implementa .-> In
   UC --> Eval
@@ -41,8 +49,7 @@ flowchart LR
   Mock -. implementa .-> Events
   Mock -. implementa .-> Policy
   Mock --> JSON
-  Config -. inyecta .-> UC
-  Config -. crea .-> Mock
+  Config -. configura .-> Factory
   UC --> Data
   Eval --> Data
   Mock --> Data
@@ -53,3 +60,5 @@ flowchart LR
 Las flechas continuas representan uso; las discontinuas, implementación o composición. Las lecturas se despachan por interfaces al adaptador. Domain no depende de ninguna otra capa; Application no importa Spring ni Infrastructure. Un único adaptador implementa los tres puertos, con archivos separados por contrato. No hay herramientas de escritura ni modelos de IA.
 
 Lombok genera constructores en compilación; no es un componente de runtime. springdoc genera OpenAPI y sirve Swagger UI en infraestructura. El puerto de entrada expone únicamente `execute`; los servicios auxiliares conservan toda decisión de negocio dentro de Application.
+
+El endpoint demo selecciona conjuntos de fixtures sin estado compartido y llama al mismo puerto de entrada. `DemoOpenApiConfiguration`, también restringido a demo, añade ejemplos documentales desde el catálogo y las respuestas verificadas. No decide derechos ni sustituye la evaluación por un snapshot.

@@ -2,6 +2,8 @@
 
 ```mermaid
 flowchart TD
+  Demo[POST /api/demo/assessments, solo perfil demo] --> Fixtures[Validar selector y componer lecturas con fixtures aislados]
+  Fixtures --> Valid
   Request[POST /api/assessments] --> Valid{JSON y bookingId válidos?}
   Valid -- No --> Bad[400 ProblemDetail genérico]
   Valid -- Sí --> Trip[AssessDisruptionUseCaseImpl.execute: leer reserva mediante puerto]
@@ -37,3 +39,5 @@ flowchart TD
 ```
 
 La decisión de cada tramo se repite para todos los segmentos. Un fallo de política conserva el retraso ya verificado; un fallo anterior no inventa hechos. La indisponibilidad de fuente se representa con revisión, no como ausencia de interrupción.
+
+El selector de fixtures demo solo modifica las respuestas de las integraciones simuladas. Ambos endpoints ejecutan el mismo caso de uso. Escenarios de política externos distintos de `DisruptionScenario.DELAY` no se consideran verificados.

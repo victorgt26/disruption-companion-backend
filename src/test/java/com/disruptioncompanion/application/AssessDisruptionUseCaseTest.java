@@ -17,6 +17,7 @@ import com.disruptioncompanion.application.service.PolicyEvaluator;
 import com.disruptioncompanion.application.service.SourceFreshness;
 import com.disruptioncompanion.application.usecase.AssessDisruptionUseCaseImpl;
 import com.disruptioncompanion.domain.enums.AssessmentStatus;
+import com.disruptioncompanion.domain.enums.DisruptionScenario;
 import com.disruptioncompanion.domain.enums.EntitlementCode;
 import com.disruptioncompanion.domain.enums.EvidenceDecision;
 import com.disruptioncompanion.domain.enums.NextStep;
@@ -109,7 +110,7 @@ class AssessDisruptionUseCaseTest {
 
   PolicyRules policy() {
     return new PolicyRules(
-        "DELAY",
+        DisruptionScenario.DELAY,
         "POL-DELAY-2026-03",
         LocalDate.parse("2026-03-01"),
         List.of(
@@ -150,7 +151,7 @@ class AssessDisruptionUseCaseTest {
               NOW.minusSeconds(900)));
     when(events.getOperationalEvents(anyList()))
         .thenReturn(new OperationalEvents(list, meta("COMPLETE")));
-    when(policies.getPolicyRules("DELAY")).thenReturn(policy());
+    when(policies.getPolicyRules(DisruptionScenario.DELAY)).thenReturn(policy());
   }
 
   @Test
@@ -316,7 +317,7 @@ class AssessDisruptionUseCaseTest {
   void unknownRuleIsNotExecutedAsAnExpression() {
     var invalid =
         new PolicyRules(
-            "DELAY",
+            DisruptionScenario.DELAY,
             "V1",
             LocalDate.parse("2026-01-01"),
             List.of(new PolicyRule("R9", "always true", "REBOOK_NO_FEE", false)),
@@ -343,7 +344,12 @@ class AssessDisruptionUseCaseTest {
   @Test
   void emptyPolicyIsNotVerified() {
     var invalid =
-        new PolicyRules("DELAY", "V1", LocalDate.parse("2026-01-01"), List.of(), meta("COMPLETE"));
+        new PolicyRules(
+            DisruptionScenario.DELAY,
+            "V1",
+            LocalDate.parse("2026-01-01"),
+            List.of(),
+            meta("COMPLETE"));
     var evaluation = new PolicyEvaluator().evaluate(invalid, 300, false, false, NOW);
     assertTrue(evaluation.entitlements().isEmpty());
     assertEquals(List.of(ReviewReason.POLICY_UNVERIFIED), evaluation.reviewReasons());
@@ -355,7 +361,8 @@ class AssessDisruptionUseCaseTest {
     when(events.getOperationalEvents(anyList()))
         .thenReturn(
             new OperationalEvents(List.of(delay(180, NOW.minusSeconds(60))), meta("COMPLETE")));
-    when(policies.getPolicyRules("DELAY")).thenThrow(new SourceUnavailableException());
+    when(policies.getPolicyRules(DisruptionScenario.DELAY))
+        .thenThrow(new SourceUnavailableException());
     var result = useCase.execute("ABC123", false);
     assertEquals(180, result.disruptions().getFirst().delayMinutes());
     assertTrue(result.entitlements().isEmpty());
@@ -382,7 +389,7 @@ class AssessDisruptionUseCaseTest {
     when(events.getOperationalEvents(anyList()))
         .thenReturn(
             new OperationalEvents(List.of(delay(180, NOW.minusSeconds(1800))), meta("COMPLETE")));
-    when(policies.getPolicyRules("DELAY")).thenReturn(policy());
+    when(policies.getPolicyRules(DisruptionScenario.DELAY)).thenReturn(policy());
     assertEquals(
         EntitlementCode.REBOOK_NO_FEE,
         useCase.execute("ABC123", false).entitlements().getFirst().code());
@@ -413,7 +420,12 @@ class AssessDisruptionUseCaseTest {
   void supersededPolicyIsRejected() {
     var source = policy();
     var invalid =
-        new PolicyRules("DELAY", "OLD", source.effectiveFrom(), source.rules(), meta("COMPLETE"));
+        new PolicyRules(
+            DisruptionScenario.DELAY,
+            "OLD",
+            source.effectiveFrom(),
+            source.rules(),
+            meta("COMPLETE"));
     var evaluation = new PolicyEvaluator().evaluate(invalid, 300, false, false, NOW);
     assertTrue(evaluation.entitlements().isEmpty());
     assertEquals(List.of(ReviewReason.POLICY_UNVERIFIED), evaluation.reviewReasons());

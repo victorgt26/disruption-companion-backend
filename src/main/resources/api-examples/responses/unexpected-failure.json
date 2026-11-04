@@ -1,0 +1,6 @@
+{
+  "detail": "Assessment could not be completed",
+  "instance": "/api/assessments",
+  "status": 500,
+  "title": "Internal Server Error"
+}

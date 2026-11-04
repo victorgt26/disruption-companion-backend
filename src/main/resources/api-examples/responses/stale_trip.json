@@ -1,0 +1,27 @@
+{
+  "status": "REVIEW_REQUIRED",
+  "assessedAt": "2026-09-15T11:03:00Z",
+  "messageCode": "VERIFIED_DELAY",
+  "disruptions": [
+    {
+      "segmentId": "S1",
+      "eventId": "E-1001",
+      "delayMinutes": 160,
+      "newDeparture": "17:10:00"
+    }
+  ],
+  "evidence": [
+    {
+      "eventId": "E-1001",
+      "segmentId": "S1",
+      "source": "OPS_CORE",
+      "recordedAt": "2026-09-15T10:48:00Z",
+      "decision": "AUTHORITATIVE_CANDIDATE"
+    }
+  ],
+  "entitlements": [],
+  "reviewReasons": [
+    "TRIP_STALE_OR_UNVERIFIED"
+  ],
+  "nextStep": "CONTACT_HUMAN_SUPPORT"
+}

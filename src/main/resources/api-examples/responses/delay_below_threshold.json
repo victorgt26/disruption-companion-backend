@@ -1,0 +1,25 @@
+{
+  "status": "DISRUPTION",
+  "assessedAt": "2026-09-15T11:03:00Z",
+  "messageCode": "VERIFIED_DELAY",
+  "disruptions": [
+    {
+      "segmentId": "S1",
+      "eventId": "E-1001",
+      "delayMinutes": 179,
+      "newDeparture": "17:29:00"
+    }
+  ],
+  "evidence": [
+    {
+      "eventId": "E-1001",
+      "segmentId": "S1",
+      "source": "OPS_CORE",
+      "recordedAt": "2026-09-15T10:48:00Z",
+      "decision": "AUTHORITATIVE_CANDIDATE"
+    }
+  ],
+  "entitlements": [],
+  "reviewReasons": [],
+  "nextStep": "READ_VERIFIED_INFORMATION"
+}

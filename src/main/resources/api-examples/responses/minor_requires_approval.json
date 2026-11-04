@@ -1,0 +1,34 @@
+{
+  "status": "REVIEW_REQUIRED",
+  "assessedAt": "2026-09-15T11:03:00Z",
+  "messageCode": "VERIFIED_DELAY",
+  "disruptions": [
+    {
+      "segmentId": "S1",
+      "eventId": "E-1001",
+      "delayMinutes": 160,
+      "newDeparture": "17:10:00"
+    }
+  ],
+  "evidence": [
+    {
+      "eventId": "E-1001",
+      "segmentId": "S1",
+      "source": "OPS_CORE",
+      "recordedAt": "2026-09-15T10:48:00Z",
+      "decision": "AUTHORITATIVE_CANDIDATE"
+    }
+  ],
+  "entitlements": [
+    {
+      "code": "PRIORITY_HANDLING",
+      "policyRef": "POL-DELAY-2026-03",
+      "ruleId": "R5",
+      "requiresHumanApproval": true
+    }
+  ],
+  "reviewReasons": [
+    "HUMAN_APPROVAL_REQUIRED"
+  ],
+  "nextStep": "CONTACT_HUMAN_SUPPORT"
+}

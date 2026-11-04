@@ -1,10 +1,11 @@
 package com.disruptioncompanion.domain.model;
 
+import com.disruptioncompanion.domain.enums.DisruptionScenario;
 import java.time.LocalDate;
 import java.util.List;
 
 public record PolicyRules(
-    String scenario,
+    DisruptionScenario scenario,
     String version,
     LocalDate effectiveFrom,
     List<PolicyRule> rules,

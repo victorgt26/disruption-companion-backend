@@ -1,0 +1,20 @@
+{
+  "booking_id": "ABC123",
+  "passengers": [
+    {
+      "passenger_id": "P1",
+      "type": "ADULT"
+    }
+  ],
+  "segments": [],
+  "fare_conditions": {
+    "changeable": true,
+    "refundable": false,
+    "fare_family": "LIGHT"
+  },
+  "_meta": {
+    "retrieved_at": "2026-09-15T11:02:31Z",
+    "completeness": "COMPLETE",
+    "missing_fields": []
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "status": "REVIEW_REQUIRED",
+  "assessedAt": "2026-09-15T11:03:00Z",
+  "messageCode": "VERIFIED_DELAY",
+  "disruptions": [
+    {
+      "segmentId": "S1",
+      "eventId": "E-1001",
+      "delayMinutes": 240,
+      "newDeparture": "18:30:00"
+    }
+  ],
+  "evidence": [
+    {
+      "eventId": "E-1001",
+      "segmentId": "S1",
+      "source": "OPS_CORE",
+      "recordedAt": "2026-09-15T10:48:00Z",
+      "decision": "AUTHORITATIVE_CANDIDATE"
+    }
+  ],
+  "entitlements": [
+    {
+      "code": "REBOOK_NO_FEE",
+      "policyRef": "POL-DELAY-2026-03",
+      "ruleId": "R1",
+      "requiresHumanApproval": false
+    }
+  ],
+  "reviewReasons": [
+    "INTERNATIONAL_STATUS_UNKNOWN"
+  ],
+  "nextStep": "CONTACT_HUMAN_SUPPORT"
+}
