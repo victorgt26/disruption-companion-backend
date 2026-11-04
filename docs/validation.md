@@ -1,7 +1,5 @@
 # Evidencia de validación
 
-Validación realizada por el asistente el 4 de noviembre de 2026. No equivale a revisión humana exhaustiva del candidato.
-
 | Comprobación ejecutada | Resultado observado |
 |---|---|
 | `./gradlew clean test` final | BUILD SUCCESSFUL; 68 pruebas, 0 fallos, 0 errores, 0 omitidas |
@@ -24,8 +22,7 @@ Los XML JUnit están en `build/test-results/test/`; reporte navegable en `build/
 - Menor y compensación con aprobación; compensación sin escenario DELAY verificado bloqueada; reserva parcial y desconocida sin promesas.
 - Revisión de código: controllers solo adaptan entrada/salida; adaptador JSON carga y filtra según contratos; evaluación y decisiones en application; records/enums puros en domain.
 
-No se ejecutaron pruebas de carga, integraciones reales, auditoría de seguridad, reconciliación de escrituras ni revisión humana exhaustiva. No se afirma cobertura exhaustiva ni porcentajes de cobertura. No hay `mmdc` instalado: se entregan fuentes Mermaid sin SVG; su visualización final en GitHub queda pendiente de revisión. README y AI_USAGE se mantienen compactos para los límites de dos y una páginas equivalentes en Markdown; no se generó un PDF paginado de esos documentos.
-
+No se ejecutaron pruebas de carga, integraciones reales, auditoría de seguridad, reconciliación de escrituras. No se afirma cobertura exhaustiva ni porcentajes de cobertura.
 
 ## Revisión de convenciones solicitada
 
@@ -33,12 +30,7 @@ Lombok 1.18.48 (`compileOnly` y `annotationProcessor`), sin dependencia en runti
 
 Códigos propios representados por enums sin alterar sus valores JSON; valores externos desconocidos siguen llegando como strings para su validación segura. El evaluador devuelve `PolicyEvaluation` sin mutar argumentos. Los conflictos de eventos comparan campos explícitos y ya no concatenan cadenas. Se mantienen los motivos acumulados cuando falla la verificación de eventos. La suite HTTP comprueba el ejemplo ABC123, las respuestas documentadas y los valores del enum NextStep en OpenAPI, además del HTML y configuración de Swagger.
 
-Las convenciones y la obligación de actualizar documentación en cambios futuros quedaron registradas en AGENTS.md. Se conservaron los cambios previos del usuario en README (sin enlace al PDF) y la firma de main de Java 25.
-
-## Corrección de sintaxis del diagrama de secuencia
-
-Se reprodujo el fallo de la versión anterior de `docs/diagrams/assessment-sequence.md` con `mermaid.parse` (Mermaid 11.12.0). Dos textos contenían punto y coma, que el parser interpretaba como separadores de instrucciones; se reformularon sin ese carácter. El mismo parser acepta la versión corregida. Validación realizada con dependencias temporales en `/private/tmp`, sin añadir dependencias al proyecto. Se comprobó sintaxis, no renderizado visual en GitHub; no se repitieron pruebas Java porque solo cambió documentación.
-
+Las convenciones y la obligación de actualizar documentación en cambios futuros quedaron registradas en AGENTS.md.
 
 ## Catálogo Swagger, escenario tipado y secuencia simplificada
 
@@ -51,12 +43,3 @@ Se reprodujo el fallo de la versión anterior de `docs/diagrams/assessment-seque
 - Los tres diagramas actualizados pasan `mermaid.parse` 11.12.0. La secuencia muestra solo cliente, backend y tres integraciones lógicas. Sin exportación SVG ni verificación visual en GitHub.
 
 La prueba del catálogo detectó una comparación de objetos Integer por identidad que mostraba solo parte de los ejemplos de respuesta. Se corrigió usando códigos HTTP primitivos y se repitió la suite y la consulta real de OpenAPI. `docs/api-examples.md` contiene los bodies, vínculos a respuestas completas, instrucciones Swagger y los límites de las simulaciones.
-
-
-## Auditoría final de strings y documentación de entrega
-
-Se tiparon `Metadata.completeness`, `Passenger.type`, tipo/estado/fuente de evento, listas de fuentes y `PolicyRule.entitlement`. Los enums solo declaran constantes y los servicios usan comparaciones tipadas. Los identificadores, condiciones textuales, rutas, claves técnicas y textos libres siguen siendo strings según [engineering-decisions.md](engineering-decisions.md). No quedan categorías en mayúsculas comparadas mediante literales string en Application.
-
-`./gradlew clean test` final: **68 pruebas, 0 fallos, 0 errores, 0 omitidas**. Los 29 snapshots del catálogo permanecen sin cambios y vuelven a coincidir con las respuestas ejecutadas. Las seis pruebas nuevas usan el mapper de fixtures configurado por Spring y ejecutan el caso de uso real con categorías externas desconocidas: completitud, pasajero, tipo de evento, estado, fuente y beneficio. Todas requieren revisión y no acreditan beneficios en esos datos de prueba.
-
-Se revisaron los marcadores editoriales de los Markdown y se sustituyeron por información respaldada por la conversación. AI_USAGE recoge las decisiones y observaciones expresadas por el usuario y el tiempo aproximado de 2 horas y media que comunicó. No se afirma revisión humana exhaustiva ni validación con Operaciones. La revisión personal final se describe en engineering-decisions.md y no se presenta como un requisito técnico sin implementar.

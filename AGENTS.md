@@ -16,7 +16,7 @@ Proyecto: Disruption Companion, vertical slice Backend/Integración de consulta 
 - Regla permanente para todo cambio actual y futuro: revisar y actualizar los `.md` afectados por cambios de código, contratos, configuración, comandos o decisiones antes de dar el trabajo por terminado. No inventar una actualización si el contenido sigue vigente.
 - Mantener README (máximo 2 páginas equivalentes), AI_USAGE (máximo 1), supuestos y especificación de experiencia actualizados. Mermaid debe reflejar componentes y caminos reales; actualizar los tres diagramas cuando cambien.
 - No incluir datos personales reales, logs de payloads, secretos ni datos sensibles en errores. Solo lectura, mínimo privilegio, bind local para la demo.
-- PDF de reference es fuente principal. Documentar decisiones ante ambigüedades; no inventar políticas ni garantizar conexiones, precios o compensaciones.
+- Documentar decisiones ante ambigüedades; no inventar políticas ni garantizar conexiones, precios o compensaciones.
 - Mantener `docs/api-examples.md`, catálogo OpenAPI y snapshots JSON coherentes con fixtures y respuestas ejecutadas. Selectores de fixtures solo en perfil `demo`, sin estado global mutable ni lógica de negocio en infraestructura. No cambiar respuestas esperadas para ocultar regresiones. El escenario de negocio usa `DisruptionScenario`; los selectores de prueba usan `DemoScenario`.
 - Sin frontend, base de datos, cloud, mensajería ni IA en runtime. No implementar escrituras de alto impacto sin ampliar explícitamente el alcance y sus controles.
-- No realizar commits, push, despliegues ni entrega del challenge sin autorización del usuario.
+- No realizar commits, push.

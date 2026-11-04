@@ -49,7 +49,7 @@ Una evolución podría usar IA exclusivamente para clasificar intención o redac
 ## Escrituras fuera de alcance y operación
 
 - `get_eligible_options`: solo candidatos. O1 exige validar elegibilidad, vigencia TTL=120 s, inventario y grupo completo; O2 no aloja al grupo de dos; O3 requiere política de reembolso independiente. La confianza del proveedor no sustituye reglas.
-- `create_rebooking_request`: identidad y autorización de reserva, opción revalidada, política vigente, consentimiento explícito, aprobación cuando corresponda, clave idempotente persistida, auditoría y reconciliación. 201 es PENDING_CONFIRMATION, no reserva confirmada; 409 recupera la solicitud existente; 503 implica resultado indeterminado, no reintentar con otra clave ni anunciar fallo definitivo. Requiere contrato adicional de consulta/reconciliación que el PDF no proporciona.
+- `create_rebooking_request`: identidad y autorización de reserva, opción revalidada, política vigente, consentimiento explícito, aprobación cuando corresponda, clave idempotente persistida, auditoría y reconciliación. 201 es PENDING_CONFIRMATION, no reserva confirmada; 409 recupera la solicitud existente; 503 implica resultado indeterminado, no reintentar con otra clave ni anunciar fallo definitivo. Requiere contrato adicional de consulta/reconciliación.
 - `create_human_case`: consentimiento/minimización, razón y evidencia validadas, autorización y deduplicación acordadas con Operaciones. No inventar case_id ni SLA; mostrar solo los recibidos de una creación efectiva.
 - `notify_passenger`: canal autorizado y consentimiento; mensaje validado con policy_ref, sin PII innecesaria. 202 solo encolado; 422 implica corregir/retener contenido, sin enviarlo por otra vía automáticamente.
 

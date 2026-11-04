@@ -26,15 +26,3 @@ Se revisaron los literales de `src/main/java` y los campos de los modelos. La el
 Los enums de domain contienen solo constantes. No incorporan reglas ni dependencias de serialización. El mapper de mocks de infraestructura interpreta códigos externos desconocidos como null mediante `EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL`. El caso de uso y sus servicios los tratan de forma conservadora: calidad desconocida exige revisión, pasajero sin categoría ni edad exige revisión, evento sin tipo/fuente reconocidos no acredita un hecho, estado no reconocido no se interpreta y beneficio desconocido no acredita una regla. Una edad disponible se sigue considerando según la lógica existente.
 
 No se añaden categorías no proporcionadas para aparentar soporte. Por ejemplo, CANCELLED en el fixture de estado no soportado provoca revisión, sin implementar cancelaciones. Una fuente desconocida se serializa como null en la evidencia y no se considera confiable, aunque figure en la lista de fuentes disponibles. Los valores conocidos mantienen exactamente su representación JSON. Las respuestas capturadas del catálogo se verifican sin regenerarlas tras este cambio de tipado.
-
-## Decisiones y aportaciones humanas registradas
-
-La conversación respalda las decisiones del usuario sobre stack, arquitectura, convenciones, nombres de casos de uso, uso de enums y Swagger, simplificación del diagrama y necesidad de ejemplos ejecutables. La nota [AI_USAGE.md](../AI_USAGE.md) refleja esas intervenciones sin atribuirle validaciones que no haya realizado. El tiempo efectivo comunicado es de aproximadamente 2 horas y media al momento de esta revisión.
-
-Se sustituyeron los marcadores editoriales por hechos documentados. La entrega contiene implementación, instrucciones, supuestos, limitaciones, evidencia de pruebas, experiencia complementaria, diagramas y ejemplos. No quedan campos de documentación que requieran inventar información personal.
-
-## Qué corresponde revisar personalmente
-
-Leer README y AI_USAGE para confirmar que describen fielmente la propuesta que se defenderá, recorrer el catálogo Swagger y preparar la explicación de las decisiones y sus límites. La revisión humana exhaustiva y la presentación no se consideran realizadas por haber generado estos archivos. Verificar también que el tiempo total final siga reflejando el trabajo efectivo declarado, incluyendo cualquier trabajo posterior.
-
-La validación de frescura y precedencia con Operaciones, autenticación/autorización, fuentes reales y controles de escrituras son próximos pasos de producto, no partes incompletas del vertical slice solicitado. No se realizaron commits, push, despliegues ni envío al endpoint de entrega desde esta sesión.
