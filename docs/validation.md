@@ -1,45 +1,49 @@
-# Evidencia de validación
+# Validación
+
+Este documento recoge las comprobaciones registradas durante el desarrollo. No sustituye la ejecución de las pruebas sobre la versión que se vaya a utilizar.
 
 | Comprobación ejecutada | Resultado observado |
 |---|---|
-| `./gradlew clean test` final | BUILD SUCCESSFUL; 68 pruebas, 0 fallos, 0 errores, 0 omitidas |
+| `./gradlew clean test` | BUILD SUCCESSFUL; 68 pruebas, 0 fallos, 0 errores, 0 omitidas |
 | Suite de application, JUnit y puertos Mockito | 22 ejecuciones, incluidos los cuatro parámetros de umbral |
 | Suite HTTP y contratos externos, contexto Spring y JSON reales | 7 pruebas de API original, 31 de catálogo/demo, 1 de aislamiento de perfil, 1 de fallo inesperado y 6 de enums externos desconocidos |
 | `./gradlew bootRun` | Arranque correcto: Java 25.0.3, Boot 4.1.2, Tomcat, 127.0.0.1:8080, perfil demo |
 | POST HTTP real con curl y ABC123 | REVIEW_REQUIRED; S1 160 min / 17:10; R5 con aprobación; ningún REBOOK_NO_FEE; tres motivos de revisión esperados |
 | `./gradlew dependencyInsight --dependency spring-core --configuration runtimeClasspath` | Spring Framework 7.0.10 resuelto por Boot 4.1.2 |
-| HTTP real de `/swagger-ui/index.html` y `/v3/api-docs` | HTML Swagger UI y contrato OpenAPI recibidos correctamente después del refactor |
+| HTTP real de `/swagger-ui/index.html` y `/v3/api-docs` | HTML Swagger UI y contrato OpenAPI recibidos correctamente |
 | Inspección de imports con rg y lectura del código | Domain sin dependencias de application/infrastructure/frameworks; Application sin Spring/Jackson/Jakarta ni infrastructure |
 | Inspección de contratos, respuesta real y pruebas de privacidad | Sin nombres, contactos, documentos ni localizador en respuesta; errores genéricos; no-store verificado en MockMvc |
 | Revisión de documentación y diagramas frente al código | Tres lecturas, evaluación determinística y cero escrituras; límites descritos |
 
-Los XML JUnit están en `build/test-results/test/`; reporte navegable en `build/reports/tests/test/index.html`. Son artefactos locales ignorados por Git. La compilación preliminar sin tests no se contó como evidencia. Hubo fallos HTTP iniciales que permitieron corregir el booleano opcional y el mapeo de `_meta`; la suite final quedó verde. Tras el refactor se repitieron `clean test`, `bootRun` y las consultas HTTP reales de Swagger UI, OpenAPI y ABC123 con el código actualizado. El servidor de verificación se detuvo con Ctrl-C tras la consulta.
 
-## Alcance de la revisión
+Para repetir la suite:
 
-- Umbrales 179/180/239/240; datos históricos independientes del reloj actual; frontera inclusiva de frescura; eventos futuros y antiguos; precedencia y contradicción autoritativa; pérdida de conexión no inferida.
-- Fallos en contexto/política, conservación de hechos ya verificados, fuente faltante, política futura/reemplazada/vacía y regla desconocida sin ejecutar expresiones.
-- Menor y compensación con aprobación; compensación sin escenario DELAY verificado bloqueada; reserva parcial y desconocida sin promesas.
-- Revisión de código: controllers solo adaptan entrada/salida; adaptador JSON carga y filtra según contratos; evaluación y decisiones en application; records/enums puros en domain.
+```sh
+./gradlew clean test
+```
 
-No se ejecutaron pruebas de carga, integraciones reales, auditoría de seguridad, reconciliación de escrituras. No se afirma cobertura exhaustiva ni porcentajes de cobertura.
+Los resultados JUnit se generan en `build/test-results/test/` y el informe HTML en `build/reports/tests/test/index.html`. Son archivos locales ignorados por Git.
 
-## Revisión de convenciones solicitada
+## Cobertura de las pruebas
 
-Lombok 1.18.48 (`compileOnly` y `annotationProcessor`), sin dependencia en runtime; springdoc 3.2.0 según su matriz oficial para Boot 4.1. El caso de uso es un puerto `AssessDisruptionUseCase` con un único `execute`; `AssessDisruptionUseCaseImpl` coordina servicios de frescura, eventos y políticas. Se sustituyeron imports con asteriscos por explícitos y se eliminaron los no usados con google-java-format. Al expandir los imports de tests faltaron temporalmente `anyList` y `Entitlement`; se corrigieron antes de la ejecución final exitosa.
+- Umbrales de 179, 180, 239 y 240 minutos; límite inclusivo de frescura; eventos futuros y antiguos; precedencia de fuentes y eventos contradictorios.
+- Datos de reserva parciales o ausentes, pasajeros desconocidos y fallos de lectura. Los hechos verificados se conservan si falla la consulta posterior de políticas.
+- Políticas futuras, reemplazadas o vacías; reglas y categorías externas desconocidas; conexión e internacionalidad sin confirmar.
+- Atención a menores y compensación con aprobación humana. No se aplica una política DELAY sin retraso verificado.
+- Contrato HTTP, errores genéricos, cabecera `no-store` y ausencia de datos personales en las respuestas.
 
-Códigos propios representados por enums sin alterar sus valores JSON; valores externos desconocidos siguen llegando como strings para su validación segura. El evaluador devuelve `PolicyEvaluation` sin mutar argumentos. Los conflictos de eventos comparan campos explícitos y ya no concatenan cadenas. Se mantienen los motivos acumulados cuando falla la verificación de eventos. La suite HTTP comprueba el ejemplo ABC123, las respuestas documentadas y los valores del enum NextStep en OpenAPI, además del HTML y configuración de Swagger.
+## Catálogo y perfiles
 
-Las convenciones y la obligación de actualizar documentación en cambios futuros quedaron registradas en AGENTS.md.
+Los 29 ejemplos de `POST /api/demo/assessments` se capturaron mediante HTTP y se contrastan con MockMvc. Cubren los tres estados y los 17 motivos de revisión actuales. OpenAPI incluye 29 ejemplos de solicitud, 27 de respuesta 200, dos de 400 y uno de 500. El error 500 se comprueba mediante una excepción inyectada en test.
 
-## Catálogo Swagger, escenario tipado y secuencia simplificada
+El perfil `live` comprueba que el endpoint demo devuelve 404 y que sus ejemplos no aparecen en OpenAPI. Cada selector utiliza adaptadores propios, sin estado compartido entre peticiones. Las seis variantes de categorías externas desconocidas se prueban aparte, sin modificar los 29 snapshots.
 
-- `DisruptionScenario.DELAY` tipa el puerto de políticas y su modelo. Jackson 3 usa `EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL` exclusivamente en el mapper de fixtures, de modo que escenarios de política desconocidos no se consideran válidos. Los selectores `DemoScenario` desconocidos enviados por HTTP reciben 400.
-- 29 requests ejecutados contra `POST /api/demo/assessments` por HTTP real. Sus responses completos se guardaron en `src/main/resources/api-examples/responses/` y cada ejemplo se contrasta con la ejecución actual en tests. Se verifica cobertura de los tres estados y de los 17 motivos de revisión actuales.
-- El catálogo OpenAPI final se consultó por HTTP: 29 ejemplos de request, 27 ejemplos de respuesta 200, dos de 400 y uno de 500. La respuesta 500 se contrastó mediante un fallo inesperado inyectado en la prueba HTTP, sin añadir una operación pública que lo fuerce.
-- La prueba de perfil `live` confirma 404 para el endpoint demo y ausencia de sus ejemplos en OpenAPI. Cada selector compone adaptadores propios sin estado compartido entre peticiones. Las decisiones continúan dentro del caso de uso y sus servicios.
-- Se transformó la combinación de reglas a streams con resultados sin efectos laterales. Las 22 pruebas de application siguen pasando. La suite total final es de 62 pruebas, cero fallos, errores u omisiones.
-- El arranque real se comprobó en 8081 porque una instancia previa ocupaba 8080. La primera tentativa en 8080 falló por puerto ocupado y se conservó esa instancia. La instancia temporal de verificación se detuvo con Ctrl-C al finalizar.
-- Los tres diagramas actualizados pasan `mermaid.parse` 11.12.0. La secuencia muestra solo cliente, backend y tres integraciones lógicas. Sin exportación SVG ni verificación visual en GitHub.
+## Arquitectura y documentación
 
-La prueba del catálogo detectó una comparación de objetos Integer por identidad que mostraba solo parte de los ejemplos de respuesta. Se corrigió usando códigos HTTP primitivos y se repitió la suite y la consulta real de OpenAPI. `docs/api-examples.md` contiene los bodies, vínculos a respuestas completas, instrucciones Swagger y los límites de las simulaciones.
+La revisión de imports comprueba la separación entre capas: domain contiene datos; application concentra las decisiones y no depende de Spring; infrastructure adapta los contratos y compone los componentes. El puerto de entrada expone `execute` y Lombok genera los constructores en compilación.
+
+Los tres diagramas se validaron con `mermaid.parse` 11.12.0. No se comprobó su representación visual en GitHub.
+
+## Límites
+
+No se han realizado pruebas de carga, integraciones con proveedores reales, auditorías de seguridad ni pruebas de reconciliación de escrituras. No hay mediciones de rendimiento ni un porcentaje de cobertura publicado.

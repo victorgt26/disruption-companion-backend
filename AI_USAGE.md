@@ -1,11 +1,19 @@
-# AI Usage & Decision Note
+# Uso de IA en el desarrollo
 
-**Herramientas y contribución de IA.** Codex asistió en análisis, programación, pruebas y documentación. Se utilizó búsqueda web para comprobar compatibilidad en fuentes oficiales, Shell/Python, Gradle/JUnit/Mockito/MockMvc, google-java-format y el parser Mermaid. No se utilizaron subagentes ni modelos en runtime. La IA generó código, fixtures minimizados, tests, diagramas y documentación bajo las restricciones definidas.
+Utilicé Codex como apoyo para analizar el problema, programar, preparar pruebas y revisar la documentación. También lo usé para generar fixtures y diagramas. La aplicación no utiliza IA en ejecución.
 
-**Decisiones principales.** Se definió track Backend, stack, arquitectura hexagonal, responsabilidades de cada capa, idioma y límites de alcance. Se usó Lombok, imports explícitos, patrón UseCase/execute/Impl, enums para categorías de negocio, legibilidad y Swagger UI.
+## Criterios de implementación
 
-**Decisiones técnicas implementadas.** La evaluación es determinística, sin escrituras ni IA agentic. La ventana de frescura de 30 minutos y la precedencia de OPS_CORE son supuestos explícitos de demo que deben validarse con Operaciones antes de una integración real. Se descartaron inferir conexión perdida, otorgar un cambio gratuito por 160 minutos, considerar una opción candidata como elegibilidad confirmada y ejecutar compensaciones automáticamente. Los enums mantienen los nombres JSON y los códigos externos desconocidos requieren revisión.
+El desarrollo siguió las restricciones del proyecto: Java y Spring Boot, arquitectura hexagonal, consulta de solo lectura y lógica de negocio en application. Se mantuvieron los contratos JSON al introducir enums y se trataron los valores externos desconocidos como datos que requieren revisión.
 
-**Correcciones y validación.** Los tests detectaron incompatibilidades de Jackson 3 con el booleano primitivo omitido y con el prefijo `_meta`; ambos se corrigieron. El parser reprodujo y permitió corregir el fallo Mermaid. La prueba OpenAPI detectó una comparación Integer por identidad que omitía ejemplos. La revisión de strings convirtió categorías finitas en enums y añadió pruebas de valores desconocidos. Se ejecutaron compilación y `./gradlew clean test`; se verificaron arranque y llamadas HTTP reales, incluyendo 29 ejemplos capturados y publicados en Swagger. El ejemplo 500 se contrasta con un fallo inyectado en test. Resultados vigentes y límites en [docs/validation.md](docs/validation.md).
+La evaluación es determinista. La ventana de frescura de 30 minutos y la precedencia de OPS_CORE son supuestos de la demo que deben validarse con Operaciones. No se infiere una conexión perdida ni se concede un cambio gratuito con 160 minutos de retraso. Las compensaciones requieren aprobación humana.
 
-**Información excluida de un modelo en producto.** Nombres, documentos, contactos, localizadores, credenciales, secretos y conversaciones identificables. Los fixtures nuevos omiten nombres y contactos. Una futura IA solo recibiría hechos mínimos desidentificados y validados, sin herramientas de escritura, con control determinístico y derivación humana.
+## Comprobaciones
+
+Durante el desarrollo se utilizaron Gradle, JUnit, Mockito y MockMvc, además de llamadas HTTP para comprobar el arranque, Swagger y los ejemplos. Se consultaron fuentes oficiales para revisar compatibilidad y se usaron google-java-format y el parser de Mermaid. Los resultados registrados y sus límites están en [validation.md](docs/validation.md).
+
+Las pruebas permitieron corregir el tratamiento del booleano opcional, el mapeo de `_meta` y una comparación de códigos HTTP que omitía ejemplos en OpenAPI. Los snapshots se contrastan con las respuestas del backend.
+
+## Datos y límites
+
+Los fixtures nuevos omiten nombres y contactos. Una posible integración futura con IA tendría que trabajar con hechos mínimos, desidentificados y validados, sin credenciales, secretos ni conversaciones identificables. Las decisiones de elegibilidad y las autorizaciones seguirían sujetas a reglas y revisión humana.

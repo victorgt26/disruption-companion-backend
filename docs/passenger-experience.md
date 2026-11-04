@@ -1,6 +1,6 @@
-# Experiencia y contrato complementario
+# Experiencia del pasajero
 
-Diseño del track Frontend/Experience; no hay aplicación frontend implementada.
+Este documento describe cómo presentar la evaluación al pasajero y qué haría falta para incorporar nuevas operaciones. El frontend no está implementado.
 
 ## Pantalla y comunicación del caso base
 
@@ -34,7 +34,7 @@ Probar en [Swagger UI](http://127.0.0.1:8080/swagger-ui.html), con el ejemplo `A
 | `evidence` | eventId, segmentId, source, recordedAt y decision; trazabilidad técnica, no copiar como texto de pasajero |
 | `entitlements` | code, policyRef, ruleId, requiresHumanApproval; coincidencias de política, nunca una ejecución confirmada |
 | `reviewReasons` | Códigos de incertidumbre o necesidad de aprobación; guiar la revisión |
-| `nextStep` | `CONTACT_HUMAN_SUPPORT` o `READ_VERIFIED_INFORMATION`; una instrucción, sin side effects |
+| `nextStep` | `CONTACT_HUMAN_SUPPORT` o `READ_VERIFIED_INFORMATION`; una instrucción, sin efectos secundarios |
 
 Los códigos de estado, mensaje, siguiente paso, revisión, evidencia y beneficios son enums en Java y valores enumerados en OpenAPI. Su representación JSON sigue siendo una cadena con los valores descritos; identificadores y condiciones externas conservan strings. Completitud, tipo de pasajero, tipo/estado/fuente operacional y beneficio de política están tipados; valores externos desconocidos se leen como null y no se interpretan como categorías verificadas. Las políticas usan `DisruptionScenario.DELAY`; un escenario externo desconocido se convierte en null y no acredita derechos.
 
@@ -48,9 +48,9 @@ Una evolución podría usar IA exclusivamente para clasificar intención o redac
 
 ## Escrituras fuera de alcance y operación
 
-- `get_eligible_options`: solo candidatos. O1 exige validar elegibilidad, vigencia TTL=120 s, inventario y grupo completo; O2 no aloja al grupo de dos; O3 requiere política de reembolso independiente. La confianza del proveedor no sustituye reglas.
+- `get_eligible_options`: devuelve alternativas pendientes de validación. O1 exige validar elegibilidad, vigencia TTL=120 s, inventario y grupo completo; O2 no aloja al grupo de dos; O3 requiere política de reembolso independiente. La confianza del proveedor no sustituye reglas.
 - `create_rebooking_request`: identidad y autorización de reserva, opción revalidada, política vigente, consentimiento explícito, aprobación cuando corresponda, clave idempotente persistida, auditoría y reconciliación. 201 es PENDING_CONFIRMATION, no reserva confirmada; 409 recupera la solicitud existente; 503 implica resultado indeterminado, no reintentar con otra clave ni anunciar fallo definitivo. Requiere contrato adicional de consulta/reconciliación.
 - `create_human_case`: consentimiento/minimización, razón y evidencia validadas, autorización y deduplicación acordadas con Operaciones. No inventar case_id ni SLA; mostrar solo los recibidos de una creación efectiva.
 - `notify_passenger`: canal autorizado y consentimiento; mensaje validado con policy_ref, sin PII innecesaria. 202 solo encolado; 422 implica corregir/retener contenido, sin enviarlo por otra vía automáticamente.
 
-Producción: timeouts, presupuesto de latencia por fuente, métricas sin identificadores, trazas autorizadas con retención definida, control de acceso, límites de consultas y alertas ante degradación. No hay red externa en las lecturas actuales, reintentos ni métricas de rendimiento medidas. Confirmar con Operaciones precedencia/frescura y con Producto lenguaje y canal de derivación; con Seguridad, autorización y retención. El SLA de 45 minutos es solo un ejemplo de una escritura no implementada.
+Producción: timeouts, presupuesto de latencia por fuente, métricas sin identificadores, trazas autorizadas con retención definida, control de acceso, límites de consultas y alertas ante degradación. No hay red externa en las lecturas actuales, reintentos ni métricas de rendimiento medidas. Confirmar con Operaciones precedencia/frescura y con Producto lenguaje y canal de derivación; con Seguridad, autorización y retención. Los tiempos de atención deberán acordarse antes de implementar la creación de casos.
