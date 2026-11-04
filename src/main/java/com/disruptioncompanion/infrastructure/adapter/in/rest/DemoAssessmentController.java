@@ -25,33 +25,32 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/demo/assessments")
 public class DemoAssessmentController {
-  private final AssessmentUseCaseFactory factory;
+    private final AssessmentUseCaseFactory factory;
 
-  @Operation(
-      summary = "Try assessment fixtures (demo only)",
-      description =
-          "Choose a named request example to execute the real use case with isolated JSON fixtures."
-              + " No booking changes or human cases are created.")
-  @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Assessment computed from selected fixtures"),
-    @ApiResponse(
-        responseCode = "400",
-        description = "Invalid request or demo selector",
-        content = @Content(schema = @Schema(implementation = ProblemDetail.class))),
-    @ApiResponse(
-        responseCode = "500",
-        description = "Unexpected assessment failure",
-        content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
-  })
-  @PostMapping
-  public ResponseEntity<AssessmentResponse> assess(@Valid @RequestBody DemoAssessmentRequest body) {
-    var useCase = factory.create(body.scenario().getFixtures());
-    var request = body.request();
-    return ResponseEntity.ok()
-        .cacheControl(CacheControl.noStore())
-        .body(
-            AssessmentMapper.toResponse(
-                useCase.execute(
-                    request.bookingId(), Boolean.TRUE.equals(request.compensationRequested()))));
-  }
+    @Operation(
+            summary = "Try assessment fixtures (demo only)",
+            description =
+                    "Choose a named request example to execute the real use case with isolated JSON fixtures."
+                            + " No booking changes or human cases are created.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Assessment computed from selected fixtures"),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request or demo selector",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Unexpected assessment failure",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
+    })
+    @PostMapping
+    public ResponseEntity<AssessmentResponse> assess(@Valid @RequestBody DemoAssessmentRequest body) {
+        var useCase = factory.create(body.scenario().getFixtures());
+        var request = body.request();
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore())
+                .body(AssessmentMapper.toResponse(
+                        useCase.execute(request.bookingId(), Boolean.TRUE.equals(request.compensationRequested()))
+                ));
+    }
 }

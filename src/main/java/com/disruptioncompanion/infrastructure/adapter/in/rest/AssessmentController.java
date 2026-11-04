@@ -23,31 +23,32 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/assessments")
 public class AssessmentController {
-  private final AssessDisruptionUseCase assessDisruption;
+    private final AssessDisruptionUseCase assessDisruption;
 
-  @Operation(
-      summary = "Assess a trip disruption",
-      description =
-          "Read-only assessment. Review states and policy matches do not authorize a booking change"
-              + " or compensation.")
-  @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Assessment, possibly requiring human review"),
-    @ApiResponse(
-        responseCode = "400",
-        description = "Invalid request",
-        content = @Content(schema = @Schema(implementation = ProblemDetail.class))),
-    @ApiResponse(
-        responseCode = "500",
-        description = "Unexpected assessment failure",
-        content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
-  })
-  @PostMapping
-  public ResponseEntity<AssessmentResponse> assess(@Valid @RequestBody AssessmentRequest request) {
-    return ResponseEntity.ok()
-        .cacheControl(CacheControl.noStore())
-        .body(
-            AssessmentMapper.toResponse(
-                assessDisruption.execute(
-                    request.bookingId(), Boolean.TRUE.equals(request.compensationRequested()))));
-  }
+    @Operation(
+            summary = "Assess a trip disruption",
+            description =
+                    "Read-only assessment. Review states and policy matches do not authorize a booking change"
+                            + " or compensation.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Assessment, possibly requiring human review"),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Unexpected assessment failure",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
+    })
+    @PostMapping
+    public ResponseEntity<AssessmentResponse> assess(@Valid @RequestBody AssessmentRequest request) {
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore())
+                .body(
+                        AssessmentMapper.toResponse(
+                                assessDisruption.execute(request.bookingId(), Boolean.TRUE.equals(request.compensationRequested()))
+                        )
+                );
+    }
 }
