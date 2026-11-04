@@ -10,8 +10,10 @@ import com.disruptioncompanion.application.service.PolicyEvaluator;
 import com.disruptioncompanion.application.service.SourceFreshness;
 import com.disruptioncompanion.domain.enums.AssessmentMessage;
 import com.disruptioncompanion.domain.enums.AssessmentStatus;
+import com.disruptioncompanion.domain.enums.DataCompleteness;
 import com.disruptioncompanion.domain.enums.DisruptionScenario;
 import com.disruptioncompanion.domain.enums.NextStep;
+import com.disruptioncompanion.domain.enums.PassengerType;
 import com.disruptioncompanion.domain.enums.ReviewReason;
 import com.disruptioncompanion.domain.model.Assessment;
 import com.disruptioncompanion.domain.model.Entitlement;
@@ -118,7 +120,7 @@ public final class AssessDisruptionUseCaseImpl implements AssessDisruptionUseCas
       reasons.add(ReviewReason.TRIP_STALE_OR_UNVERIFIED);
     }
     if (metadata == null
-        || !"COMPLETE".equals(metadata.completeness())
+        || metadata.completeness() != DataCompleteness.COMPLETE
         || metadata.missingFields() != null && !metadata.missingFields().isEmpty()) {
       reasons.add(ReviewReason.TRIP_PARTIAL);
     }
@@ -139,7 +141,7 @@ public final class AssessDisruptionUseCaseImpl implements AssessDisruptionUseCas
             .filter(Objects::nonNull)
             .anyMatch(
                 passenger ->
-                    "CHILD".equals(passenger.type())
+                    passenger.type() == PassengerType.CHILD
                         || passenger.age() != null && passenger.age() < 18);
   }
 

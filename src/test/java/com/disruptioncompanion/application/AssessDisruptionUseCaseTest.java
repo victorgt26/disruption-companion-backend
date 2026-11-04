@@ -17,10 +17,15 @@ import com.disruptioncompanion.application.service.PolicyEvaluator;
 import com.disruptioncompanion.application.service.SourceFreshness;
 import com.disruptioncompanion.application.usecase.AssessDisruptionUseCaseImpl;
 import com.disruptioncompanion.domain.enums.AssessmentStatus;
+import com.disruptioncompanion.domain.enums.DataCompleteness;
 import com.disruptioncompanion.domain.enums.DisruptionScenario;
 import com.disruptioncompanion.domain.enums.EntitlementCode;
 import com.disruptioncompanion.domain.enums.EvidenceDecision;
 import com.disruptioncompanion.domain.enums.NextStep;
+import com.disruptioncompanion.domain.enums.OperationalEventType;
+import com.disruptioncompanion.domain.enums.OperationalSource;
+import com.disruptioncompanion.domain.enums.OperationalStatus;
+import com.disruptioncompanion.domain.enums.PassengerType;
 import com.disruptioncompanion.domain.enums.ReviewReason;
 import com.disruptioncompanion.domain.model.Assessment;
 import com.disruptioncompanion.domain.model.Entitlement;
@@ -70,13 +75,13 @@ class AssessDisruptionUseCaseTest {
             new PolicyEvaluator());
   }
 
-  Metadata meta(String completeness) {
+  Metadata meta(DataCompleteness completeness) {
     return new Metadata(
         NOW.minusSeconds(30),
         completeness,
         List.of(),
-        List.of("OPS_CORE", "LEGACY_MIRROR"),
-        List.of("LEGACY_MIRROR"),
+        List.of(OperationalSource.OPS_CORE, OperationalSource.LEGACY_MIRROR),
+        List.of(OperationalSource.LEGACY_MIRROR),
         List.of("OLD"));
   }
 
@@ -96,16 +101,25 @@ class AssessDisruptionUseCaseTest {
     return new TripContext(
         "ABC123",
         List.of(
-            new Passenger("P1", "ADULT", null),
-            new Passenger("P2", minor ? "CHILD" : "ADULT", minor ? 7 : null)),
+            new Passenger("P1", PassengerType.ADULT, null),
+            new Passenger(
+                "P2", minor ? PassengerType.CHILD : PassengerType.ADULT, minor ? 7 : null)),
         connection ? List.of(s1, s2) : List.of(s1),
         new FareConditions(true, false, "LIGHT"),
-        meta(partial ? "PARTIAL" : "COMPLETE"));
+        meta(partial ? DataCompleteness.PARTIAL : DataCompleteness.COMPLETE));
   }
 
   OperationalEvent delay(int minutes, Instant at) {
     return new OperationalEvent(
-        "E1", "S1", "DELAY", LocalTime.of(17, 10), minutes, null, null, "OPS_CORE", at);
+        "E1",
+        "S1",
+        OperationalEventType.DELAY,
+        LocalTime.of(17, 10),
+        minutes,
+        null,
+        null,
+        OperationalSource.OPS_CORE,
+        at);
   }
 
   PolicyRules policy() {
@@ -114,12 +128,18 @@ class AssessDisruptionUseCaseTest {
         "POL-DELAY-2026-03",
         LocalDate.parse("2026-03-01"),
         List.of(
-            new PolicyRule("R1", "delay_minutes >= 180", "REBOOK_NO_FEE", false),
-            new PolicyRule("R2", "delay_minutes >= 240 AND international", "MEAL_VOUCHER", false),
-            new PolicyRule("R3", "missed_connection == true", "REBOOK_NO_FEE", false),
-            new PolicyRule("R4", "compensation_requested == true", "CASH_COMPENSATION", true),
-            new PolicyRule("R5", "group_includes_minor == true", "PRIORITY_HANDLING", true)),
-        meta("COMPLETE"));
+            new PolicyRule("R1", "delay_minutes >= 180", EntitlementCode.REBOOK_NO_FEE, false),
+            new PolicyRule(
+                "R2",
+                "delay_minutes >= 240 AND international",
+                EntitlementCode.MEAL_VOUCHER,
+                false),
+            new PolicyRule("R3", "missed_connection == true", EntitlementCode.REBOOK_NO_FEE, false),
+            new PolicyRule(
+                "R4", "compensation_requested == true", EntitlementCode.CASH_COMPENSATION, true),
+            new PolicyRule(
+                "R5", "group_includes_minor == true", EntitlementCode.PRIORITY_HANDLING, true)),
+        meta(DataCompleteness.COMPLETE));
   }
 
   void givenDelay(int minutes, boolean partial, boolean minor, boolean connection) {
@@ -130,27 +150,27 @@ class AssessDisruptionUseCaseTest {
         new OperationalEvent(
             "OLD",
             "S1",
-            "STATUS",
+            OperationalEventType.STATUS,
             null,
             null,
             null,
-            "ON_TIME",
-            "LEGACY_MIRROR",
+            OperationalStatus.ON_TIME,
+            OperationalSource.LEGACY_MIRROR,
             NOW.minusSeconds(5400)));
     if (connection)
       list.add(
           new OperationalEvent(
               "E2",
               "S2",
-              "STATUS",
+              OperationalEventType.STATUS,
               null,
               null,
               null,
-              "SCHEDULED",
-              "OPS_CORE",
+              OperationalStatus.SCHEDULED,
+              OperationalSource.OPS_CORE,
               NOW.minusSeconds(900)));
     when(events.getOperationalEvents(anyList()))
-        .thenReturn(new OperationalEvents(list, meta("COMPLETE")));
+        .thenReturn(new OperationalEvents(list, meta(DataCompleteness.COMPLETE)));
     when(policies.getPolicyRules(DisruptionScenario.DELAY)).thenReturn(policy());
   }
 
@@ -210,7 +230,8 @@ class AssessDisruptionUseCaseTest {
     when(trips.getTripContext("ABC123")).thenReturn(trip(false, false, false));
     when(events.getOperationalEvents(anyList()))
         .thenReturn(
-            new OperationalEvents(List.of(delay(300, NOW.minusSeconds(1801))), meta("COMPLETE")));
+            new OperationalEvents(
+                List.of(delay(300, NOW.minusSeconds(1801))), meta(DataCompleteness.COMPLETE)));
     var result = useCase.execute("ABC123", false);
     assertTrue(result.disruptions().isEmpty());
     assertTrue(result.entitlements().isEmpty());
@@ -229,14 +250,14 @@ class AssessDisruptionUseCaseTest {
                     new OperationalEvent(
                         "E2",
                         "S1",
-                        "STATUS",
+                        OperationalEventType.STATUS,
                         null,
                         null,
                         null,
-                        "ON_TIME",
-                        "OPS_CORE",
+                        OperationalStatus.ON_TIME,
+                        OperationalSource.OPS_CORE,
                         NOW.minusSeconds(60))),
-                meta("COMPLETE")));
+                meta(DataCompleteness.COMPLETE)));
     var result = useCase.execute("ABC123", false);
     assertTrue(result.reviewReasons().contains(ReviewReason.CONFLICTING_AUTHORITATIVE_EVENTS));
     assertTrue(result.entitlements().isEmpty());
@@ -253,14 +274,14 @@ class AssessDisruptionUseCaseTest {
                     new OperationalEvent(
                         "E2",
                         "S1",
-                        "STATUS",
+                        OperationalEventType.STATUS,
                         null,
                         null,
                         null,
-                        "ON_TIME",
-                        "OPS_CORE",
+                        OperationalStatus.ON_TIME,
+                        OperationalSource.OPS_CORE,
                         NOW.minusSeconds(60))),
-                meta("COMPLETE")));
+                meta(DataCompleteness.COMPLETE)));
     assertEquals(
         AssessmentStatus.NO_VERIFIED_DISRUPTION, useCase.execute("ABC123", false).status());
     verifyNoInteractions(policies);
@@ -293,7 +314,8 @@ class AssessDisruptionUseCaseTest {
     when(trips.getTripContext("ABC123")).thenReturn(trip(false, false, false));
     when(events.getOperationalEvents(anyList()))
         .thenReturn(
-            new OperationalEvents(List.of(delay(300, NOW.plusSeconds(1))), meta("COMPLETE")));
+            new OperationalEvents(
+                List.of(delay(300, NOW.plusSeconds(1))), meta(DataCompleteness.COMPLETE)));
     assertTrue(useCase.execute("ABC123", false).entitlements().isEmpty());
     verifyNoInteractions(policies);
   }
@@ -320,8 +342,8 @@ class AssessDisruptionUseCaseTest {
             DisruptionScenario.DELAY,
             "V1",
             LocalDate.parse("2026-01-01"),
-            List.of(new PolicyRule("R9", "always true", "REBOOK_NO_FEE", false)),
-            meta("COMPLETE"));
+            List.of(new PolicyRule("R9", "always true", EntitlementCode.REBOOK_NO_FEE, false)),
+            meta(DataCompleteness.COMPLETE));
     var evaluation = new PolicyEvaluator().evaluate(invalid, 300, false, false, NOW);
     assertTrue(evaluation.entitlements().isEmpty());
     assertTrue(evaluation.reviewReasons().contains(ReviewReason.UNKNOWN_POLICY_RULE));
@@ -332,9 +354,17 @@ class AssessDisruptionUseCaseTest {
     when(trips.getTripContext("ABC123")).thenReturn(trip(false, false, false));
     var event =
         new OperationalEvent(
-            "E1", "S1", "DELAY", LocalTime.NOON, 300, null, null, null, NOW.minusSeconds(60));
+            "E1",
+            "S1",
+            OperationalEventType.DELAY,
+            LocalTime.NOON,
+            300,
+            null,
+            null,
+            null,
+            NOW.minusSeconds(60));
     when(events.getOperationalEvents(anyList()))
-        .thenReturn(new OperationalEvents(List.of(event), meta("COMPLETE")));
+        .thenReturn(new OperationalEvents(List.of(event), meta(DataCompleteness.COMPLETE)));
     var result = useCase.execute("ABC123", false);
     assertEquals(AssessmentStatus.REVIEW_REQUIRED, result.status());
     assertTrue(result.entitlements().isEmpty());
@@ -349,7 +379,7 @@ class AssessDisruptionUseCaseTest {
             "V1",
             LocalDate.parse("2026-01-01"),
             List.of(),
-            meta("COMPLETE"));
+            meta(DataCompleteness.COMPLETE));
     var evaluation = new PolicyEvaluator().evaluate(invalid, 300, false, false, NOW);
     assertTrue(evaluation.entitlements().isEmpty());
     assertEquals(List.of(ReviewReason.POLICY_UNVERIFIED), evaluation.reviewReasons());
@@ -360,7 +390,8 @@ class AssessDisruptionUseCaseTest {
     when(trips.getTripContext("ABC123")).thenReturn(trip(false, false, false));
     when(events.getOperationalEvents(anyList()))
         .thenReturn(
-            new OperationalEvents(List.of(delay(180, NOW.minusSeconds(60))), meta("COMPLETE")));
+            new OperationalEvents(
+                List.of(delay(180, NOW.minusSeconds(60))), meta(DataCompleteness.COMPLETE)));
     when(policies.getPolicyRules(DisruptionScenario.DELAY))
         .thenThrow(new SourceUnavailableException());
     var result = useCase.execute("ABC123", false);
@@ -374,9 +405,17 @@ class AssessDisruptionUseCaseTest {
     when(trips.getTripContext("ABC123")).thenReturn(trip(false, false, false));
     var event =
         new OperationalEvent(
-            "E1", "S1", "STATUS", null, null, null, "SCHEDULED", "OPS_CORE", NOW.minusSeconds(60));
+            "E1",
+            "S1",
+            OperationalEventType.STATUS,
+            null,
+            null,
+            null,
+            OperationalStatus.SCHEDULED,
+            OperationalSource.OPS_CORE,
+            NOW.minusSeconds(60));
     when(events.getOperationalEvents(anyList()))
-        .thenReturn(new OperationalEvents(List.of(event), meta("COMPLETE")));
+        .thenReturn(new OperationalEvents(List.of(event), meta(DataCompleteness.COMPLETE)));
     var result = useCase.execute("ABC123", true);
     assertTrue(result.reviewReasons().contains(ReviewReason.COMPENSATION_SCENARIO_UNVERIFIED));
     assertTrue(result.entitlements().isEmpty());
@@ -388,7 +427,8 @@ class AssessDisruptionUseCaseTest {
     when(trips.getTripContext("ABC123")).thenReturn(trip(false, false, false));
     when(events.getOperationalEvents(anyList()))
         .thenReturn(
-            new OperationalEvents(List.of(delay(180, NOW.minusSeconds(1800))), meta("COMPLETE")));
+            new OperationalEvents(
+                List.of(delay(180, NOW.minusSeconds(1800))), meta(DataCompleteness.COMPLETE)));
     when(policies.getPolicyRules(DisruptionScenario.DELAY)).thenReturn(policy());
     assertEquals(
         EntitlementCode.REBOOK_NO_FEE,
@@ -409,7 +449,8 @@ class AssessDisruptionUseCaseTest {
     when(trips.getTripContext("ABC123")).thenReturn(trip(false, false, false));
     when(events.getOperationalEvents(anyList()))
         .thenReturn(
-            new OperationalEvents(List.of(delay(180, NOW.minusSeconds(60))), meta("COMPLETE")));
+            new OperationalEvents(
+                List.of(delay(180, NOW.minusSeconds(60))), meta(DataCompleteness.COMPLETE)));
     var result = live.execute("ABC123", false);
     assertTrue(result.reviewReasons().contains(ReviewReason.EVENTS_UNAVAILABLE_OR_STALE));
     assertTrue(result.disruptions().isEmpty());
@@ -425,7 +466,7 @@ class AssessDisruptionUseCaseTest {
             "OLD",
             source.effectiveFrom(),
             source.rules(),
-            meta("COMPLETE"));
+            meta(DataCompleteness.COMPLETE));
     var evaluation = new PolicyEvaluator().evaluate(invalid, 300, false, false, NOW);
     assertTrue(evaluation.entitlements().isEmpty());
     assertEquals(List.of(ReviewReason.POLICY_UNVERIFIED), evaluation.reviewReasons());

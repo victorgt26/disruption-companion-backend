@@ -1,3 +1,5 @@
 package com.disruptioncompanion.domain.model;
 
-public record Passenger(String passengerId, String type, Integer age) {}
+import com.disruptioncompanion.domain.enums.PassengerType;
+
+public record Passenger(String passengerId, PassengerType type, Integer age) {}

@@ -24,7 +24,7 @@ flowchart LR
   end
   subgraph Domain[Domain: solo datos]
     Data[Records: reserva, eventos, reglas, evaluación y evidencias]
-    Enum[Enums: escenario, estado, mensaje, siguiente paso, revisión, evidencia y beneficio]
+    Enum[Enums: categorías de entrada, escenario, resultado, revisión y beneficio]
   end
   Client --> Controller
   Controller --> In

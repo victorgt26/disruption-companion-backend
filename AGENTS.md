@@ -9,7 +9,7 @@ Proyecto: Disruption Companion, vertical slice Backend/Integración de consulta 
 - Inyección por constructor con `@RequiredArgsConstructor` de Lombok en clases con dependencias finales; composición con beans Spring en infraestructura. Mantener records sin anotaciones redundantes. No añadir abstracciones sin responsabilidad concreta.
 - Puertos de entrada: `NombreUseCase`, un único método público `execute`; implementación `NombreUseCaseImpl` en `application/usecase`, con helpers privados.
 - Imports explícitos, incluidos los estáticos: nunca usar asteriscos ni conservar imports sin uso. Mantener formato uniforme.
-- Usar enums para códigos finitos controlados por el backend; conservar strings de contratos externos cuando sea necesario tolerar valores desconocidos. Mantener estable su representación JSON.
+- Usar enums para categorías finitas que gobiernan decisiones (completitud, pasajeros, eventos, fuentes, escenarios y beneficios); tratar valores externos desconocidos de forma conservadora en aplicación, con deserialización configurada en infraestructura. Conservar strings para identificadores, condiciones y textos libres. Mantener estable la representación JSON y documentar el criterio en `docs/engineering-decisions.md`.
 - Casos de uso coordinan; servicios auxiliares expresan decisiones concretas con métodos cortos y nombres claros. Usar streams para transformaciones y predicados, sin efectos laterales ocultos ni cadenas que dificulten leer el flujo.
 - Probar decisiones de application con JUnit y Mockito sobre puertos de salida; reloj fijo, límites, fuentes contradictorias, datos parciales y fallos. Verificar contrato HTTP y privacidad.
 - Comandos: `./gradlew clean test`, `./gradlew bootRun`. No inventar resultados de pruebas ni validaciones.

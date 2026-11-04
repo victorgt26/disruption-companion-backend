@@ -1,6 +1,9 @@
 package com.disruptioncompanion.application.service;
 
 import com.disruptioncompanion.domain.enums.EvidenceDecision;
+import com.disruptioncompanion.domain.enums.OperationalEventType;
+import com.disruptioncompanion.domain.enums.OperationalSource;
+import com.disruptioncompanion.domain.enums.OperationalStatus;
 import com.disruptioncompanion.domain.enums.ReviewReason;
 import com.disruptioncompanion.domain.model.Evidence;
 import com.disruptioncompanion.domain.model.OperationalAssessment;
@@ -17,9 +20,11 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public final class OperationalEventAssessor {
-  private static final String AUTHORITATIVE_SOURCE = "OPS_CORE";
-  private static final Set<String> SUPPORTED_EVENT_TYPES = Set.of("DELAY", "STATUS");
-  private static final Set<String> UNCHANGED_STATUSES = Set.of("ON_TIME", "SCHEDULED");
+  private static final OperationalSource AUTHORITATIVE_SOURCE = OperationalSource.OPS_CORE;
+  private static final Set<OperationalEventType> SUPPORTED_EVENT_TYPES =
+      Set.of(OperationalEventType.DELAY, OperationalEventType.STATUS);
+  private static final Set<OperationalStatus> UNCHANGED_STATUSES =
+      Set.of(OperationalStatus.ON_TIME, OperationalStatus.SCHEDULED);
   private final SourceFreshness freshness;
 
   public OperationalAssessment assess(
@@ -69,8 +74,8 @@ public final class OperationalEventAssessor {
   }
 
   private boolean isVerified(OperationalEvent event, OperationalEvents feed, Instant now) {
-    List<String> degraded = feed._meta().sourcesDegraded();
-    List<String> available = feed._meta().sourcesAvailable();
+    List<OperationalSource> degraded = feed._meta().sourcesDegraded();
+    List<OperationalSource> available = feed._meta().sourcesAvailable();
     return event.eventId() != null
         && !event.eventId().isBlank()
         && event.source() != null
@@ -82,7 +87,7 @@ public final class OperationalEventAssessor {
   }
 
   private boolean isAuthoritative(OperationalEvent event) {
-    return AUTHORITATIVE_SOURCE.equals(event.source())
+    return event.source() == AUTHORITATIVE_SOURCE
         && event.type() != null
         && SUPPORTED_EVENT_TYPES.contains(event.type());
   }
@@ -107,7 +112,7 @@ public final class OperationalEventAssessor {
       reasons.add(ReviewReason.CONFLICTING_AUTHORITATIVE_EVENTS);
       return;
     }
-    if ("DELAY".equals(selected.type())) {
+    if (selected.type() == OperationalEventType.DELAY) {
       assessDelay(selected, disruptions, reasons);
     } else if (selected.status() == null || !UNCHANGED_STATUSES.contains(selected.status())) {
       reasons.add(ReviewReason.UNSUPPORTED_OPERATIONAL_STATUS);
