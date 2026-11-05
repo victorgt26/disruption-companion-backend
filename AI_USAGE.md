@@ -1,35 +1,39 @@
-# Uso de IA en el desarrollo
+# Uso de IA y decisiones de desarrollo
 
 ## Herramientas utilizadas
 
-Utilicé Codex como apoyo para analizar el desafío, generar código, preparar pruebas, mocks y documentación. También lo usé para generar los diagramas de arquitectura y de flujo.
+Utilicé Codex como apoyo para analizar el desafío, generar parte del código, preparar pruebas, mocks, documentación y diagramas.
 
-La aplicación no utiliza IA en tiempo de ejecución. La evaluación de políticas y beneficios se realiza mediante reglas determinísticas.
+Antes de comenzar definí el stack tecnológico (Java 25, Spring Boot 4 y Gradle) y la arquitectura hexagonal que quería utilizar.
+
+La aplicación no incorpora IA en tiempo de ejecución. Preferí mantener las decisiones sobre políticas y beneficios mediante reglas determinísticas, que puedan verificarse y auditarse.
 
 ## Decisiones y correcciones
 
-Antes de comenzar definí el stack tecnológico: Java 25, Spring Boot 4 y Gradle. También decidí utilizar arquitectura hexagonal para separar la lógica de negocio de las integraciones.
+Durante el desarrollo revisé las propuestas de Codex y fui realizando ajustes, principalmente para mejorar la arquitectura, la legibilidad y la mantenibilidad.
 
-Durante el desarrollo fui revisando y ajustando algunas propuestas de Codex:
+Estas fueron algunas de mis intervenciones:
 
-- **Arquitectura hexagonal:** inicialmente se había colocado cierta lógica y servicios en `domain`. Pedí moverlos a `application`, dejando `domain` únicamente para POJOs, records y enums.
-- **Convenciones de nombres:** solicité utilizar los sufijos `UseCase` y `UseCaseImpl` para identificar claramente los contratos y sus implementaciones. También unifiqué la ejecución de los casos de uso mediante el método `execute`.
-- **Uso de enums:** pedí reemplazar Strings hardcodeados por enums cuando representan estados o categorías conocidas. Preferí mantener los Strings para identificadores y valores abiertos.
-- **Diagramas:** solicité simplificarlos, eliminando detalles de clases que no aportaban a la explicación de la arquitectura.
-- **Diseño de la API:** elegí mantener `POST /api/assessments` para recibir un contexto de evaluación estructurado, aunque la operación sea de solo lectura. GET también sería válido para una consulta más sencilla.
+- **Arquitectura:** inicialmente Codex había colocado servicios y cierta lógica dentro de `domain`. Pedí moverlos a `application`, dejando el dominio únicamente para POJOs, records y enums.
+- **Casos de uso:** solicité utilizar los sufijos `UseCase` y `UseCaseImpl` para diferenciar interfaces e implementaciones. También pedí estandarizar el método `execute` para hacer más clara su utilización.
+- **Enums:** pedí reemplazar Strings hardcodeados por enums cuando representan estados o categorías conocidas. Los identificadores y valores abiertos se mantienen como Strings.
+- **Diagramas:** solicité simplificarlos porque inicialmente incluían demasiados nombres de clases y detalles que no aportaban a la explicación general.
+- **API:** decidí mantener `POST /api/assessments` para recibir los parámetros de evaluación mediante un JSON. Aunque GET sería válido para una consulta simple, preferí POST por la estructura del request y su posible evolución.
 
-Estas correcciones responden principalmente a criterios de legibilidad, mantenibilidad y separación de responsabilidades.
+Acepté el uso de adaptadores mock, pruebas automatizadas y diagramas generados con ayuda de Codex, revisando su coherencia con el alcance del proyecto.
+
+No incorporé Strategy ni un LLM en runtime. Para este primer alcance consideré que no aportaban suficiente valor como para justificar la complejidad adicional.
 
 ## Validación
 
-Durante el desarrollo se utilizaron Gradle, JUnit, Mockito, MockMvc y pruebas HTTP. También se revisaron las dependencias y la documentación Mermaid.
+Durante el desarrollo se utilizaron Gradle, JUnit, Mockito, MockMvc y pruebas HTTP.
 
-Las pruebas permitieron corregir problemas con el booleano opcional, el mapeo de `_meta` y algunos ejemplos de respuestas HTTP en OpenAPI.
+También se corrigieron problemas relacionados con un booleano opcional, el mapeo de `_meta` y la documentación de respuestas HTTP en OpenAPI.
 
-Los resultados registrados y sus limitaciones están en [validation.md](docs/validation.md).
+Los resultados registrados y las validaciones pendientes están documentados en [validation.md](docs/validation.md).
 
-## Seguridad y límites
+## Seguridad
 
-No compartiría con un modelo credenciales, secretos, documentos de identidad ni información personal de pasajeros.
+No compartiría con un modelo credenciales, tokens, documentos de identidad ni información personal de pasajeros.
 
-Si se incorpora IA en el futuro, la utilizaría para interpretar consultas o generar explicaciones basadas en información validada, pero no para decidir automáticamente beneficios, compensaciones o cambios de reserva.
+Si posteriormente se incorpora IA, la utilizaría para interpretar consultas o generar explicaciones basadas en información previamente validada. Las decisiones de elegibilidad y las acciones de alto impacto deberían continuar bajo reglas y controles humanos.
