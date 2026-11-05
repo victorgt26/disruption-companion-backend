@@ -1,28 +1,37 @@
-# Decisiones de diseño
+## POST vs GET para la evaluación
 
-## Strings y enums
+Elegí `POST /api/assessments` porque el servicio recibe un contexto de evaluación mediante un JSON, en lugar de consultar únicamente un recurso por su identificador.
 
-Se revisaron los literales de `src/main/java` y los campos de los modelos. La elección depende del significado y del uso del valor, no de que aparezca entre comillas. Las categorías que gobiernan decisiones están tipadas; identificadores, textos y expresiones de contratos conservan su naturaleza de string.
+Actualmente la operación recibe `bookingId` y `compensationRequested`. Aunque no realiza escrituras, POST permite ampliar los parámetros de evaluación sin depender de múltiples query parameters.
 
-| Categoría / campo | Decisión | Motivo |
-|---|---|---|
-| `Metadata.completeness` | `DataCompleteness`: COMPLETE, PARTIAL | El caso de uso decide revisión según la calidad de la información |
-| `Passenger.type` | `PassengerType`: ADULT, CHILD | Participa en la identificación del grupo con menor |
-| `OperationalEvent.type` | `OperationalEventType`: DELAY, STATUS, GATE_CHANGE | Selección de hechos y contexto operacional |
-| `OperationalEvent.status` | `OperationalStatus`: ON_TIME, SCHEDULED | Estados interpretados por el vertical slice actual |
-| Fuente de evento y listas de disponibilidad/degradación | `OperationalSource`: OPS_CORE, AIRPORT_FEED, LEGACY_MIRROR | Identidad consistente entre evento, confianza y metadatos |
-| `PolicyRule.entitlement` y `Entitlement.code` | `EntitlementCode` | Comparación tipada entre beneficio de la regla y el esperado |
-| Escenario de política | `DisruptionScenario.DELAY` | Único escenario de negocio implementado |
-| Estado, mensaje, siguiente paso, revisión y decisión de evidencia | Enums existentes | Vocabulario finito y coherente en aplicación y API |
-| Selección de fixtures | `DemoScenario` en infraestructura | Catálogo técnico de pruebas, distinto del escenario de negocio |
-| Condiciones de política | String en el contrato y catálogo interno `KnownRule` | Se conserva la condición original y solo se reconocen pares conocidos de condición/beneficio, sin ejecutar expresiones |
-| Identificadores de reserva, pasajeros, segmentos, eventos, reglas y versiones | String | Son referencias abiertas, no categorías finitas |
-| Código de aeropuerto, número de vuelo, puerta y familia tarifaria LIGHT | String | Datos externos que no gobiernan reglas en este alcance, sin inventar un catálogo incompleto |
-| Campos ausentes y versiones reemplazadas | Listas de strings | Rutas de campos e identificadores externos |
-| Perfiles, properties, rutas, recursos, claves JSON y nombres de ejemplos | Strings de infraestructura | Nombres declarativos y contratos técnicos; un enum no aporta semántica de negocio |
-| Descripciones Swagger, mensajes de error y textos libres | String | Contenido textual, no una categoría de decisión |
-| Códigos HTTP de anotaciones Swagger | Strings requeridos por la anotación | Su representación forma parte del contrato OpenAPI |
+Consideré GET como alternativa. Tiene una semántica más clara para consultas y facilita el uso de mecanismos de caché HTTP. Sin embargo, para este caso preferí mantener un request estructurado.
 
-Los enums de domain contienen solo constantes. No incorporan reglas ni dependencias de serialización. El mapper de mocks de infraestructura interpreta códigos externos desconocidos como null mediante `EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL`. El caso de uso y sus servicios los tratan de forma conservadora: calidad desconocida exige revisión, pasajero sin categoría ni edad exige revisión, evento sin tipo/fuente reconocidos no acredita un hecho, estado no reconocido no se interpreta y beneficio desconocido no acredita una regla. Una edad disponible se sigue considerando según la lógica existente.
+El endpoint devuelve `200 OK`, no crea un recurso persistente y no ejecuta cambios de reserva. Se utiliza `Cache-Control: no-store` por tratarse de información relacionada con un viaje y una reserva.
 
-No se añaden categorías no proporcionadas para aparentar soporte. Por ejemplo, CANCELLED en el fixture de estado no soportado provoca revisión, sin implementar cancelaciones. Una fuente desconocida se serializa como null en la evidencia y no se considera confiable, aunque figure en la lista de fuentes disponibles. Los valores conocidos mantienen su representación JSON. Las pruebas contrastan las respuestas con los snapshots del catálogo.
+Si en el futuro el contrato se mantiene simple, GET sería una opción que reconsideraría.
+
+## Selección de eventos operacionales
+
+Actualmente se priorizan los eventos de `OPS_CORE` y se toma el último evento válido de tipo `DELAY` o `STATUS` para cada segmento, teniendo en cuenta la frescura de los datos y las fuentes degradadas.
+
+Esta decisión supone que los eventos de `DELAY` y `STATUS` pueden representar actualizaciones del mismo estado operacional vigente.
+
+El PDF no garantiza expresamente esa semántica. Por ejemplo, si después de un `DELAY` recibimos un `STATUS: ON_TIME`, necesitamos saber si ese estado reemplaza el retraso anterior o si ambos eventos describen aspectos distintos.
+
+Antes de integrar fuentes reales, confirmaría este comportamiento con el equipo de Operaciones y el responsable del contrato de eventos.
+
+Mientras no exista una definición clara, es preferible marcar la información como incierta cuando no pueda resolverse la contradicción, en lugar de asumir que el último evento siempre tiene razón.
+
+También sería necesario definir qué hacer con correcciones, eventos recibidos fuera de orden y actualizaciones que solo modifican un atributo del vuelo.
+
+## Patrones y extensibilidad
+
+La arquitectura utiliza Ports and Adapters para separar la lógica de negocio de los sistemas externos.
+
+La implementación de los casos de uso mantiene una estructura sencilla: un puerto de entrada, una implementación que coordina la operación y puertos de salida que abstraen las lecturas.
+
+Consideré utilizar Strategy para resolver diferentes tipos de interrupción, como retrasos, cancelaciones o cambios de itinerario. Por ahora no lo incorporé porque el alcance implementado se limita a retrasos y no existen estrategias alternativas reales.
+
+Si se incorporan nuevos escenarios, podría definir una interfaz `DisruptionAssessmentStrategy` y una implementación para cada tipo de interrupción, seleccionada mediante un enum. Esto permitiría agregar comportamientos sin concentrar todas las condiciones en un único caso de uso.
+
+Preferí mantener la implementación actual y evitar abstracciones que todavía no son necesarias.

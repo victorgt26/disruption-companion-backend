@@ -82,9 +82,8 @@ public final class PolicyEvaluator {
             return Optional.empty();
         }
         return Arrays.stream(KnownRule.values())
-                .filter(
-                        known ->
-                                known.condition.equals(rule.condition()) && known.entitlement == rule.entitlement())
+                .filter(known -> known.condition.equals(rule.condition())
+                        && known.entitlement == rule.entitlement())
                 .findFirst();
     }
 

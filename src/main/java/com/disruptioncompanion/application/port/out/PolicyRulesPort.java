@@ -4,5 +4,5 @@ import com.disruptioncompanion.domain.enums.DisruptionScenario;
 import com.disruptioncompanion.domain.model.PolicyRules;
 
 public interface PolicyRulesPort {
-  PolicyRules getPolicyRules(DisruptionScenario scenario);
+    PolicyRules getPolicyRules(DisruptionScenario scenario);
 }

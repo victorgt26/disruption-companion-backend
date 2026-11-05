@@ -1,41 +1,84 @@
 # Disruption Companion Backend
 
-Backend de consulta de interrupciones de viaje. Combina la reserva, los eventos operacionales y las políticas disponibles para informar de retrasos y beneficios aplicables. La consulta es de solo lectura: no modifica reservas ni ejecuta compensaciones.
+Servicio backend para evaluar interrupciones de viajes aéreos y ayudar al pasajero a entender qué ocurrió y cuáles son sus alternativas.
 
-El alcance actual cubre retrasos con fuentes simuladas en JSON. La [experiencia del pasajero](docs/passenger-experience.md) está documentada, pero no hay frontend implementado.
+La solución combina información de reservas, eventos operacionales y políticas para generar una evaluación trazable. No modifica reservas ni ejecuta compensaciones.
 
-## Ejecución y validación
+**Track:** Backend / Integration.
 
-Requiere JDK 25 y acceso a Maven Central/Gradle en la primera ejecución; no requiere servicios externos.
+## Arquitectura y alcance
 
-```sh
+Implementé una arquitectura hexagonal con Java 25, Spring Boot 4.1.2 y Gradle 9.3.1, separando las responsabilidades en tres capas:
+
+- **Domain:** modelos y enumeraciones, sin lógica de negocio.
+- **Application:** casos de uso, puertos de entrada y salida, evaluación de políticas y lógica de negocio.
+- **Infrastructure:** controladores REST, adaptadores mock, mapeos y configuración de Spring.
+
+Esta separación permite probar las reglas sin levantar Spring Boot y reemplazar las integraciones mock por implementaciones reales sin modificar los casos de uso.
+
+La primera versión cubre el escenario de retrasos utilizando contratos simulados en JSON. No implementé frontend ni operaciones de escritura, porque el objetivo es validar primero las decisiones de negocio y su confiabilidad.
+
+[Arquitectura](docs/diagrams/hexagonal-architecture.md) · [Flujo de evaluación](docs/diagrams/disruption-assessment-flow.md) · [Diagrama de secuencia](docs/diagrams/assessment-sequence.md) · [Experiencia del pasajero](docs/passenger-experience.md)
+
+## Decisiones técnicas
+
+**POST en lugar de GET.** Utilicé `POST /api/assessments` porque la operación recibe un contexto de evaluación estructurado, que incluye la reserva y parámetros como `compensationRequested`. Aunque actualmente es de solo lectura, el contrato permite incorporar nuevos criterios sin depender de múltiples query parameters.
+
+GET también sería válido para una consulta sencilla y facilitaría aprovechar el caché HTTP. Preferí POST por la estructura de entrada. La operación devuelve `200 OK` y no crea ningún recurso persistente.
+
+**Evaluación determinística.** No incorporé IA en runtime porque las decisiones sobre beneficios deben ser verificables. La IA podría utilizarse posteriormente para interpretar consultas o generar explicaciones a partir de información validada, pero no para autorizar cambios o compensaciones.
+
+**Frescura y confiabilidad.** Se considera la fuente, el timestamp y su estado de degradación. Para la demo asumí una ventana configurable de 30 minutos y OPS_CORE como fuente autoritativa. Estos criterios necesitan validación con el equipo de Operaciones antes de utilizar fuentes reales.
+
+**Manejo de incertidumbre.** Cuando falta información crítica o existen contradicciones que no pueden resolverse, la evaluación indica que se requiere verificación. No se inventan estados, beneficios ni autorizaciones.
+
+## Resultado del caso ABC123
+
+La reserva presenta un retraso operacional de **160 minutos** para el vuelo LA500. La información anterior de LEGACY_MIRROR no reemplaza el evento válido de OPS_CORE.
+
+La evaluación determina:
+
+- **R1:** no aplica, porque requiere al menos 180 minutos.
+- **R3:** no se confirma, porque faltan datos para determinar si la conexión se perderá.
+- **R5:** identifica atención prioritaria por un pasajero menor, sujeta a aprobación humana.
+
+El resultado es `REVIEW_REQUIRED` y la siguiente acción recomendada es `CONTACT_HUMAN_SUPPORT`.
+
+Esto no significa que se haya creado un caso de atención ni que exista autorización para cambiar la reserva.
+
+Las opciones alternativas tampoco se ofrecen automáticamente: O1 no tiene elegibilidad verificada, O2 dispone de un asiento para dos pasajeros y O3 requiere validar la política de reembolso.
+
+## Ejecución y pruebas
+
+Requiere JDK 25. La primera compilación necesita acceso a los repositorios de dependencias.
+
+```bash
 ./gradlew clean test
 ./gradlew bootRun
-curl -sS http://127.0.0.1:8080/api/assessments \
-  -H 'Content-Type: application/json' \
+```
+
+Ejemplo de consulta:
+
+```bash
+curl -X POST http://127.0.0.1:8080/api/assessments \
+  -H "Content-Type: application/json" \
   -d '{"bookingId":"ABC123","compensationRequested":false}'
 ```
 
-Con la aplicación iniciada: [Swagger UI](http://127.0.0.1:8080/swagger-ui.html) permite probar la consulta con `ABC123`; [OpenAPI JSON](http://127.0.0.1:8080/v3/api-docs) expone contrato, ejemplos y enums. [Catálogo de 29 requests y responses](docs/api-examples.md): en Swagger, usar `POST /api/demo/assessments` y elegir un ejemplo del request. Este endpoint solo existe en el perfil `demo`.
+También se puede utilizar [Swagger UI](http://127.0.0.1:8080/swagger-ui.html) o consultar los [ejemplos de API](docs/api-examples.md).
 
-El perfil predeterminado `demo` fija `Clock` en `2026-09-15T11:03:00Z`. Así, la demostración histórica no caduca según el día de ejecución. `./gradlew bootRun --args='--spring.profiles.active=live'` usa el reloj real: los mismos mocks históricos producirán revisión por datos antiguos. Los tests fijan el tiempo. Reporte: `build/reports/tests/test/index.html`.
+El perfil predeterminado `demo` utiliza un reloj fijo (`2026-09-15T11:03:00Z`) para reproducir el caso histórico. El perfil `live` utiliza el reloj real, pero **continúa trabajando con mocks**; no representa una integración productiva.
 
-Java 25 con toolchains; Spring Boot 4.1.2 gestiona Framework 7, Jackson 3, JUnit y Mockito. Gradle Wrapper 9.3.1. Lombok 1.18.48 genera constructores (`@RequiredArgsConstructor`), sin añadirse al runtime; [springdoc 3.2.0](https://springdoc.org/#what-is-the-compatibility-matrix-of-springdoc-openapi-with-spring-boot) incorpora Swagger UI. Compatibilidad: [Spring](https://docs.spring.io/spring-boot/system-requirements.html), [Gradle](https://docs.gradle.org/current/userguide/compatibility.html). MVC, Jakarta Validation, sin DB ni dependencias de servicios remotos.
+Las pruebas cubren reglas, umbrales, fuentes contradictorias, datos incompletos, políticas, errores y contratos HTTP. Los resultados están documentados en [validation.md](docs/validation.md).
 
-## Decisiones y resultado
+## Seguridad, limitaciones y próximos pasos
 
-- Domain: records y enums, sin lógica. Application: puerto `AssessDisruptionUseCase`, implementación `AssessDisruptionUseCaseImpl.execute`, evaluación de eventos (`OperationalEventAssessor`), frescura (`SourceFreshness`), políticas y tres puertos de lectura. Infrastructure: REST, mapper, JSON y composición Spring. [Arquitectura](docs/diagrams/hexagonal-architecture.md), [flujo](docs/diagrams/disruption-assessment-flow.md), [secuencia](docs/diagrams/assessment-sequence.md).
-- ABC123: retraso verificado de **160 min**, salida informada 17:10 en S1. Se ignora el estado antiguo/degradado de LEGACY_MIRROR. R1 exige ≥180: **no se ofrece cambio gratuito por retraso**. No se afirma conexión perdida: faltan llegada actualizada, zonas horarias y tiempo mínimo de conexión. R3 queda sin acreditar. R5 identifica atención prioritaria **sujeta a aprobación humana** por el menor.
-- Resultado: `REVIEW_REQUIRED`, motivos de reserva parcial, conexión desconocida y aprobación; siguiente paso `CONTACT_HUMAN_SUPPORT`. No significa que se haya creado un caso. `entitlements` son coincidencias de reglas, sujetas a revisión cuando el estado lo indica; no son autorizaciones de ejecución. Cada coincidencia incluye versión y regla; cada evento incluye fuente, timestamp y tratamiento.
-- Supuestos deliberados: cualquier retraso positivo es relevante; solo OPS_CORE confirma retraso/estado; se toma el último evento válido por segmento, empate contradictorio exige revisión. Otros eventos son contexto y no se comunican como estado. Frescura configurable `assessment.max-source-age=PT30M`, límite inclusivo, sin timestamps futuros ni posteriores a la recuperación.
-- La reserva parcial/antigua y los fallos de lectura requieren revisión; no impiden comunicar hechos operacionales independientemente verificados. Políticas: fecha efectiva, versión no declarada reemplazada y recuperación no futura; no se inventa TTL de política. Solo condiciones conocidas, sin evaluar código o expresiones remotas. Códigos propios tipados como enums; JSON conserva sus nombres anteriores. Escenario de política tipado como `DisruptionScenario.DELAY`; escenarios externos desconocidos se leen como null y requieren revisión. Completitud, pasajeros, tipos/estados/fuentes operacionales y beneficios también son enums; los desconocidos requieren revisión. Identificadores y condiciones permanecen como strings. [Criterios de tipado](docs/engineering-decisions.md). No se deduce internacionalidad de códigos de aeropuertos: R2 permanece sin acreditar a ≥240 min. Compensación R4 requiere aprobación; nunca se aplica una política DELAY sin retraso confirmado.
+La API no expone datos personales en sus respuestas. La demo no implementa autenticación y está configurada para uso local. Antes de publicarla sería necesario agregar autorización sobre la reserva, control de acceso, límites de consultas y auditoría.
 
-## Controles, alternativas y próximos pasos
+Las operaciones de rebooking, creación de casos y notificaciones quedan fuera del alcance. Para incorporarlas consideraría confirmación explícita, idempotencia, aprobaciones humanas y reconciliación ante respuestas indeterminadas.
 
-La evaluación es determinista y no utiliza modelos de IA. Los datos que no se pueden confirmar y las autorizaciones pendientes se derivan a atención humana.
+La solución se limita a retrasos y datos simulados. Queda pendiente validar las políticas y criterios de frescura con Operaciones, incorporar fuentes reales y confirmar las reglas para conexiones, inventario y compensaciones.
 
-Los cambios de reserva, la creación de casos y las notificaciones quedan fuera del alcance actual. Las alternativas de viaje del ejemplo tampoco se ofrecen: O1 no acredita elegibilidad con 160 minutos de retraso; O2 tiene una plaza para dos personas; O3 tiene baja confianza y no dispone de una política de reembolso verificada. Los requisitos para incorporar estas operaciones se describen en la especificación de experiencia.
+Para evaluar una futura versión mediría exactitud de recomendaciones, latencia p95, consultas derivadas a revisión humana y reducción de contactos evitables.
 
-La demo no tiene autenticación y escucha en `127.0.0.1`. Para exponerla sería necesario añadir identidad, autorización sobre la reserva, límites de consultas y auditoría. Los fixtures nuevos, las respuestas y los logs omiten nombres, contactos y documentos.
-
-Las pruebas cubren umbrales, menor, compensación, contradicciones, fuentes antiguas/futuras, fallos, reglas desconocidas, vigencia y contrato HTTP con JSON reales. Uso de IA y decisiones registradas: [AI_USAGE](AI_USAGE.md). Medir en piloto exactitud de beneficios, respuestas bloqueadas por calidad de datos, latencia p95 y contactos evitados; aún no hay mediciones de producción. Límites: solo retraso, una reserva mock, sin confirmación de conexión, internacionalidad, inventario, acciones o autenticación. Siguiente paso: validar supuestos con Operaciones y contratos con fuentes reales.
+[Uso de IA y decisiones](AI_USAGE.md) · [Validaciones](docs/validation.md) · [Decisiones de ingeniería](docs/engineering-decisions.md)
