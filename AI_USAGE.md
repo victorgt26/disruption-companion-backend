@@ -1,39 +1,35 @@
-# Uso de IA y decisiones de desarrollo
+# Uso de IA durante el desarrollo
 
 ## Herramientas utilizadas
 
-Utilicé Codex como apoyo para analizar el desafío, generar parte del código, preparar pruebas, mocks, documentación y diagramas.
+Para este desafío utilicé principalmente Codex. Me apoyé en la herramienta para generar código, pruebas, mocks, documentación y diagramas, además de revisar algunos aspectos de la implementación.
 
-Antes de comenzar definí el stack tecnológico (Java 25, Spring Boot 4 y Gradle) y la arquitectura hexagonal que quería utilizar.
+Antes de comenzar ya tenía definido el stack que quería utilizar: Java 25, Spring Boot 4, Gradle y arquitectura hexagonal.
 
-La aplicación no incorpora IA en tiempo de ejecución. Preferí mantener las decisiones sobre políticas y beneficios mediante reglas determinísticas, que puedan verificarse y auditarse.
+Decidí no incorporar IA en tiempo de ejecución. Para este caso me pareció más adecuado resolver las políticas y beneficios mediante reglas determinísticas, donde pueda verificar exactamente cómo se llegó a cada resultado.
 
-## Decisiones y correcciones
+## Decisiones y ajustes
 
-Durante el desarrollo revisé las propuestas de Codex y fui realizando ajustes, principalmente para mejorar la arquitectura, la legibilidad y la mantenibilidad.
+Durante el desarrollo fui revisando lo que generaba Codex y le pedí varios cambios. Los principales fueron:
 
-Estas fueron algunas de mis intervenciones:
+- **Arquitectura:** inicialmente había colocado algunos servicios y lógica de negocio dentro de `domain`. Le pedí mover todo eso a `application`, dejando el dominio únicamente para modelos, records y enums. Es la forma en que prefiero organizar este tipo de proyectos.
+- **Casos de uso:** pedí utilizar los sufijos `UseCase` para las interfaces y `UseCaseImpl` para las implementaciones. También unifiqué el método de entrada como `execute`. Me parece que así el código es más fácil de seguir.
+- **Enums:** encontré varios valores manejados como Strings hardcodeados y pedí reemplazarlos por enums cuando se trataba de estados o categorías conocidas. Los identificadores y valores que pueden variar externamente los mantuve como Strings.
+- **Diagramas:** las primeras versiones tenían demasiados detalles de clases e implementaciones. Pedí simplificarlos para mostrar mejor la arquitectura y el flujo general.
+- **API:** revisé la elección de `POST /api/assessments`, aunque sea una operación de consulta. Decidí mantenerlo porque recibe un JSON con los parámetros de evaluación y permite ampliar el contrato. Reconozco que GET también sería válido para una consulta más sencilla.
 
-- **Arquitectura:** inicialmente Codex había colocado servicios y cierta lógica dentro de `domain`. Pedí moverlos a `application`, dejando el dominio únicamente para POJOs, records y enums.
-- **Casos de uso:** solicité utilizar los sufijos `UseCase` y `UseCaseImpl` para diferenciar interfaces e implementaciones. También pedí estandarizar el método `execute` para hacer más clara su utilización.
-- **Enums:** pedí reemplazar Strings hardcodeados por enums cuando representan estados o categorías conocidas. Los identificadores y valores abiertos se mantienen como Strings.
-- **Diagramas:** solicité simplificarlos porque inicialmente incluían demasiados nombres de clases y detalles que no aportaban a la explicación general.
-- **API:** decidí mantener `POST /api/assessments` para recibir los parámetros de evaluación mediante un JSON. Aunque GET sería válido para una consulta simple, preferí POST por la estructura del request y su posible evolución.
-
-Acepté el uso de adaptadores mock, pruebas automatizadas y diagramas generados con ayuda de Codex, revisando su coherencia con el alcance del proyecto.
-
-No incorporé Strategy ni un LLM en runtime. Para este primer alcance consideré que no aportaban suficiente valor como para justificar la complejidad adicional.
+Mantuve las propuestas de utilizar adaptadores mock y pruebas automatizadas. También preferí no incorporar patrones adicionales, como Strategy, porque por ahora solo estamos resolviendo un tipo de interrupción.
 
 ## Validación
 
-Durante el desarrollo se utilizaron Gradle, JUnit, Mockito, MockMvc y pruebas HTTP.
+Se utilizaron Gradle, JUnit, Mockito, MockMvc y pruebas HTTP para comprobar el comportamiento del servicio.
 
-También se corrigieron problemas relacionados con un booleano opcional, el mapeo de `_meta` y la documentación de respuestas HTTP en OpenAPI.
+Durante las validaciones también se corrigieron algunos detalles relacionados con un booleano opcional, el mapeo de `_meta` y las respuestas documentadas en OpenAPI.
 
-Los resultados registrados y las validaciones pendientes están documentados en [validation.md](docs/validation.md).
+Los resultados de las pruebas y los escenarios pendientes están detallados en [validation.md](docs/validation.md).
 
-## Seguridad
+## Seguridad y límites
 
 No compartiría con un modelo credenciales, tokens, documentos de identidad ni información personal de pasajeros.
 
-Si posteriormente se incorpora IA, la utilizaría para interpretar consultas o generar explicaciones basadas en información previamente validada. Las decisiones de elegibilidad y las acciones de alto impacto deberían continuar bajo reglas y controles humanos.
+Si más adelante se incorpora IA al producto, la utilizaría principalmente para interpretar consultas o generar explicaciones a partir de información previamente validada. Las decisiones sobre beneficios, compensaciones o cambios de reserva deberían seguir teniendo reglas claras y controles humanos.

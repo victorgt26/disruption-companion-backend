@@ -106,7 +106,7 @@ La implementación es una demo local sin autenticación. No debe considerarse pr
 
 Se identificó un caso que requiere mayor definición del contrato de eventos: la relación entre las actualizaciones `DELAY` y `STATUS` de un mismo segmento.
 
-Antes de modificar la lógica de selección, corresponde revisar los siguientes escenarios:
+Se identificaron los siguientes escenarios que permitirían validar el comportamiento ante distintas actualizaciones operacionales:
 
 | Escenario | Validación esperada |
 |---|---|
